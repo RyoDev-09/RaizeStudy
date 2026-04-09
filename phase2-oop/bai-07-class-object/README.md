@@ -1,12 +1,12 @@
-# Bài 07: Class và Object — Nền Tảng OOP
+﻿# Bài 07: Class và Object — Nền Tảng OOP
 
 > 🟡 **Phase 2 – Bài 1/6** | Thời gian: ~4 giờ
 
 ---
 
-Chào mừng bạn đến với Phase 2! Thầy phải nói thật: đây là bài học quan trọng nhất trong toàn bộ lộ trình Java. Không hiểu Class và Object thì bạn không thể hiểu Spring Boot, không hiểu được codebase của bất kỳ dự án thực tế nào.
+Chào mừng bạn đến với Phase 2! tôi phải nói thật: đây là bài học quan trọng nhất trong toàn bộ lộ trình Java. Không hiểu Class và Object thì bạn không thể hiểu Spring Boot, không hiểu được codebase của bất kỳ dự án thực tế nào.
 
-Thầy sẽ không vội. Hãy đọc chậm, chạy code theo, và hỏi "tại sao" cho mỗi thứ bạn thấy.
+Tôi sẽ không vội. Hãy đọc chậm, chạy code theo, và hỏi "tại sao" cho mỗi thứ bạn thấy.
 
 ---
 
@@ -149,7 +149,7 @@ System.out.println(a.gia);  // 500_000 — a cũng thấy sự thay đổi!
 // Vì a và b đang trỏ đến CÙNG một object trong Heap
 ```
 
-Lần đầu thấy điều này, thầy debug mất cả buổi mà không hiểu tại sao. Bây giờ bạn biết trước rồi — đừng để vào bẫy nhé!
+Lần đầu thấy điều này, tôi debug mất cả buổi mà không hiểu tại sao. Bây giờ bạn biết trước rồi — đừng để vào bẫy nhé!
 
 ---
 
@@ -255,6 +255,6 @@ for (SanPham sp : kho) {
 
 ## ➡️ Bài Tiếp Theo
 
-Bạn có nhận ra không: khi tạo object, bạn đang gán từng field một — rất dài dòng và dễ quên. Bài tiếp theo thầy sẽ dạy **Constructor** — cách tạo object gọn gàng, đúng đắn ngay từ đầu.
+Bạn có nhận ra không: khi tạo object, bạn đang gán từng field một — rất dài dòng và dễ quên. Bài tiếp theo Tôi sẽ dạy **Constructor** — cách tạo object gọn gàng, đúng đắn ngay từ đầu.
 
 👉 **[Bài 08: Constructor, `this` và `static` Nâng Cao](../bai-08-constructor-this-static/README.md)**

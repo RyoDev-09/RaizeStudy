@@ -1,4 +1,4 @@
-# Bài 06: Method (Hàm / Phương Thức)
+﻿# Bài 06: Method (Hàm / Phương Thức)
 
 > 🟡 **Phase 1 – Bài 6/7** | Thời gian: ~3 giờ
 
@@ -142,7 +142,7 @@ tinh(5.0, 3.0);
 // đối số: 5.0, 3.0
 ```
 
-Thầy biết hai cái này nghe có vẻ giống nhau. Nhưng khi đi phỏng vấn hoặc đọc tài liệu kỹ thuật, bạn sẽ gặp hai từ này và cần biết phân biệt.
+tôi biết hai cái này nghe có vẻ giống nhau. Nhưng khi đi phỏng vấn hoặc đọc tài liệu kỹ thuật, bạn sẽ gặp hai từ này và cần biết phân biệt.
 
 ---
 

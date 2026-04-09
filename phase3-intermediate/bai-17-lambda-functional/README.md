@@ -1,4 +1,4 @@
-# Bài 17: Lambda & Functional Interface
+﻿# Bài 17: Lambda & Functional Interface
 
 > 🟠 **Phase 3 – Bài 5/6** | Thời gian: ~3 giờ
 
@@ -6,7 +6,7 @@
 
 Java 8 (2014) là một cuộc cách mạng trong lịch sử của ngôn ngữ này. **Lambda expression** và **Functional Interface** đã thay đổi cách người ta viết Java — từ verbose, boilerplate nặng nề sang code gọn gàng, biểu đạt rõ ý hơn.
 
-Thầy nhớ lần đầu thấy code Java 8, thầy không nhận ra đó là Java nữa. Bây giờ thầy không muốn quay lại Java 7 bao giờ nữa.
+tôi nhớ lần đầu thấy code Java 8, tôi không nhận ra đó là Java nữa. Bây giờ tôi không muốn quay lại Java 7 bao giờ nữa.
 
 ---
 

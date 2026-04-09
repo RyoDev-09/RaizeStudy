@@ -1,4 +1,4 @@
-# Bài 16: Generics — Kiểu Dữ Liệu Tổng Quát
+﻿# Bài 16: Generics — Kiểu Dữ Liệu Tổng Quát
 
 > 🟠 **Phase 3 – Bài 4/6** | Thời gian: ~2.5 giờ
 
@@ -147,7 +147,7 @@ tinhTong(List.of(1.5, 2.5, 3.5)); // List<Double> — OK!
 
 ## 5. Ứng Dụng Thực Tế — ApiResponse Generic
 
-Trong dự án RaizeShop, thầy thấy pattern này rất phổ biến:
+Trong dự án RaizeShop, tôi thấy pattern này rất phổ biến:
 
 ```java
 // Không có Generics — phải viết nhiều class response:

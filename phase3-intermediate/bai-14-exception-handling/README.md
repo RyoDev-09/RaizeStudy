@@ -1,4 +1,4 @@
-# Bài 14: Exception Handling — Xử Lý Lỗi
+﻿# Bài 14: Exception Handling — Xử Lý Lỗi
 
 > 🟠 **Phase 3 – Bài 2/6** | Thời gian: ~3 giờ
 
@@ -217,7 +217,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader("data.txt"))) {
 
 ---
 
-## 8. Best Practices — Thầy Hay Thấy Code Tệ Về Exception
+## 8. Best Practices — tôi Hay Thấy Code Tệ Về Exception
 
 ```java
 // ❌ ĐỪNG bắt exception rồi im lặng:

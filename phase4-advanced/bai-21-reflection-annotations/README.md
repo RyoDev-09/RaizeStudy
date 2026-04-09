@@ -1,4 +1,4 @@
-# Bài 21: Reflection & Annotations
+﻿# Bài 21: Reflection & Annotations
 
 > 🔴 **Phase 4 – Bài 3/5** | Thời gian: ~3 giờ
 
@@ -131,7 +131,7 @@ privateMethod.invoke(user, "newUser");
 
 ## 5. Kết Hợp Reflection + Annotation — Cách Framework Hoạt Động
 
-Đây là phần thú vị nhất. Thầy sẽ cho bạn thấy cách xây dựng một mini validator như Bean Validation:
+Đây là phần thú vị nhất. Tôi sẽ cho bạn thấy cách xây dựng một mini validator như Bean Validation:
 
 ```java
 import java.lang.reflect.*;

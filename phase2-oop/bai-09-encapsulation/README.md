@@ -1,10 +1,10 @@
-# Bài 09: Encapsulation — Đóng Gói Dữ Liệu
+﻿# Bài 09: Encapsulation — Đóng Gói Dữ Liệu
 
 > 🟡 **Phase 2 – Bài 3/6** | Thời gian: ~2.5 giờ
 
 ---
 
-Thầy muốn bạn thử một thứ với code bài trước:
+Tôi muốn bạn thử một thứ với code bài trước:
 
 ```java
 SanPham sp = new SanPham("Kiếm Rồng", 1_200_000, 3);
@@ -314,6 +314,6 @@ public class NguoiDung {
 
 ## ➡️ Bài Tiếp Theo
 
-Bạn đang viết class `NguoiDung` và `Admin`. Bạn có nhận ra chúng có nhiều thứ chung không? (`username`, `email`, `napTien`...) Bài tiếp theo thầy sẽ dạy cách tái sử dụng code bằng **kế thừa** — thay vì copy-paste.
+Bạn đang viết class `NguoiDung` và `Admin`. Bạn có nhận ra chúng có nhiều thứ chung không? (`username`, `email`, `napTien`...) Bài tiếp theo Tôi sẽ dạy cách tái sử dụng code bằng **kế thừa** — thay vì copy-paste.
 
 👉 **[Bài 10: Inheritance — Kế Thừa](../bai-10-inheritance/README.md)**

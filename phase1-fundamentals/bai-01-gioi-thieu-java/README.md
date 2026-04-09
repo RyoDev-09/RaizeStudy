@@ -1,12 +1,12 @@
-# Bài 01: Giới Thiệu Java – JVM, JDK, JRE và Hello World
+﻿# Bài 01: Giới Thiệu Java – JVM, JDK, JRE và Hello World
 
 > 🟢 **Phase 1 – Bài 1/7** | Thời gian: ~2 giờ
 
 ---
 
-Chào bạn! Chào mừng bạn đến với bài học đầu tiên. Thầy rất vui vì bạn đã chọn Java — đây là một trong những ngôn ngữ được dùng nhiều nhất trên thế giới và cũng là nền tảng để sau này bạn làm việc với Spring Boot, Android, hay bất kỳ hệ thống lớn nào.
+Chào bạn! Chào mừng bạn đến với bài học đầu tiên. Tôi rất vui vì bạn đã chọn Java — đây là một trong những ngôn ngữ được dùng nhiều nhất trên thế giới và cũng là nền tảng để sau này bạn làm việc với Spring Boot, Android, hay bất kỳ hệ thống lớn nào.
 
-Trước khi bắt tay vào viết dòng code đầu tiên, thầy muốn bạn hiểu **Java là gì và tại sao nó hoạt động được**. Đừng bỏ qua phần này — nhiều người học xong cả năm vẫn không biết tại sao Java lại chạy được trên mọi hệ điều hành!
+Trước khi bắt tay vào viết dòng code đầu tiên, Tôi muốn bạn hiểu **Java là gì và tại sao nó hoạt động được**. Đừng bỏ qua phần này — nhiều người học xong cả năm vẫn không biết tại sao Java lại chạy được trên mọi hệ điều hành!
 
 ---
 
@@ -26,7 +26,7 @@ Bạn có biết không — ứng dụng của dự án RaizeShop mà bạn đan
 
 ## 2. JVM, JRE, JDK — Ba Khái Niệm Bạn Cần Phân Biệt Ngay
 
-Thầy thấy đây là chỗ học sinh hay bị nhầm nhất ở bài đầu. Hãy hình dung thế này:
+tôi thấy đây là chỗ học sinh hay bị nhầm nhất ở bài đầu. Hãy hình dung thế này:
 
 ```
 Bạn muốn XEM một bộ phim (chạy chương trình Java):
@@ -61,7 +61,7 @@ Chính xác hơn:
 
 ## 3. Code Java Chạy Như Thế Nào? (Quan Trọng!)
 
-Hãy để thầy kể cho bạn nghe hành trình của một file Java từ lúc bạn gõ đến lúc máy tính thực thị:
+Hãy để Tôi kể cho bạn nghe hành trình của một file Java từ lúc bạn gõ đến lúc máy tính thực thị:
 
 ```
 Bước 1: Bạn viết            Bước 2: Compile             Bước 3: Chạy
@@ -87,7 +87,7 @@ public class HelloWorld {
 }
 ```
 
-Chạy thử đi. Bạn thấy `Xin chào Java!` in ra chưa? Tuyệt! Bây giờ thầy sẽ giải thích từng chữ, vì bạn cần hiểu chứ không chỉ copy-paste.
+Chạy thử đi. Bạn thấy `Xin chào Java!` in ra chưa? Tuyệt! Bây giờ Tôi sẽ giải thích từng chữ, vì bạn cần hiểu chứ không chỉ copy-paste.
 
 ### `public class HelloWorld` nghĩa là gì?
 
@@ -113,7 +113,7 @@ Cách để in ra màn hình. `println` = print + line (in rồi xuống dòng).
 
 ## 5. Thử Nghiệm Thêm
 
-Đừng chỉ copy bài thầy cho. Hãy thử tự tay chỉnh sửa và xem điều gì xảy ra:
+Đừng chỉ copy bài tôi cho. Hãy thử tự tay chỉnh sửa và xem điều gì xảy ra:
 
 ```java
 public class HelloWorld {
@@ -170,7 +170,7 @@ Comment là những dòng mà Java **hoàn toàn bỏ qua** khi compile. Chúng 
  */
 ```
 
-> 💡 **Mẹo thầy hay dùng:** Khi bạn đang debug, hãy comment tạm dòng code đang bị lỗi thay vì xóa đi. Sau khi fix xong mới xóa. Tránh mất code chưa biết có cần lại không.
+> 💡 **Mẹo tôi hay dùng:** Khi bạn đang debug, hãy comment tạm dòng code đang bị lỗi thay vì xóa đi. Sau khi fix xong mới xóa. Tránh mất code chưa biết có cần lại không.
 
 ---
 
@@ -189,7 +189,7 @@ Java có quy tắc đặt tên mà **cả thế giới lập trình Java đều 
 
 ## Tóm Tắt — Bài 01
 
-Thầy muốn bạn ghi nhớ 4 điều sau bài này:
+Tôi muốn bạn ghi nhớ 4 điều sau bài này:
 
 ```
 ✅ JDK = Bộ công cụ để lập trình Java (bao gồm cả JRE và JVM)
@@ -202,6 +202,6 @@ Thầy muốn bạn ghi nhớ 4 điều sau bài này:
 
 ## ➡️ Bài Tiếp Theo
 
-Bạn đã viết được chương trình Java đầu tiên. Nhưng in ra chữ cứng thế này thì chán lắm, phải không? Bài tiếp theo thầy sẽ dạy bạn cách dùng **biến** để lưu trữ dữ liệu — từ đó chương trình mới thực sự có ý nghĩa.
+Bạn đã viết được chương trình Java đầu tiên. Nhưng in ra chữ cứng thế này thì chán lắm, phải không? Bài tiếp theo Tôi sẽ dạy bạn cách dùng **biến** để lưu trữ dữ liệu — từ đó chương trình mới thực sự có ý nghĩa.
 
 👉 **[Bài 02: Biến & Kiểu Dữ Liệu](../bai-02-bien-kieu-du-lieu/README.md)**

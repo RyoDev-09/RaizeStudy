@@ -1,12 +1,12 @@
-# Bài 23: Testing với JUnit 5 & Mockito
+﻿# Bài 23: Testing với JUnit 5 & Mockito
 
 > 🔴 **Phase 4 – Bài 5/5** | Thời gian: ~4 giờ
 
 ---
 
-Thầy nói thật: khi thầy mới học lập trình, thầy nghĩ testing là "làm cho xong" — viết vài test cho có rồi thôi. Nhưng sau nhiều năm làm dự án thực tế, thầy nhận ra: **code không có test = code bạn không dám refactor, không dám deploy tự tin**.
+Tôi nói thật: khi tôi mới học lập trình, tôi nghĩ testing là "làm cho xong" — viết vài test cho có rồi thôi. Nhưng sau nhiều năm làm dự án thực tế, tôi nhận ra: **code không có test = code bạn không dám refactor, không dám deploy tự tin**.
 
-Bài này thầy sẽ dạy bạn cách viết test **thực sự hữu ích**, không phải test cho có.
+Bài này Tôi sẽ dạy bạn cách viết test **thực sự hữu ích**, không phải test cho có.
 
 ---
 
@@ -220,7 +220,7 @@ class DangKyServiceTest {
 ```
 Không phải 100% coverage = tốt!
 
-Thầy khuyên:
+tôi khuyên:
 - Core business logic: 80-90%+ coverage
 - Utility classes: 70-80%
 - Controller/API: Test integration, không cần unit test chi tiết

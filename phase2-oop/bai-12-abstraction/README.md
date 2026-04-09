@@ -1,10 +1,10 @@
-# Bài 12: Abstraction — Abstract Class & Interface
+﻿# Bài 12: Abstraction — Abstract Class & Interface
 
 > 🟡 **Phase 2 – Bài 6/6** | Thời gian: ~3.5 giờ
 
 ---
 
-Đây là bài cuối của Phase 2 và cũng là bài thầy thấy học sinh hay bị nhầm nhất. Thầy sẽ giải thích rõ ràng từng bước.
+Đây là bài cuối của Phase 2 và cũng là bài tôi thấy học sinh hay bị nhầm nhất. Tôi sẽ giải thích rõ ràng từng bước.
 
 Câu hỏi mở: Khi bạn viết class `ThongBao` ở bài trước, bạn có nhận ra `ThongBao` không thể tồn tại "một mình" không? Thông báo không có kiểu cụ thể thì *gửi bằng gì?* Nó chỉ là khái niệm trừu tượng — một khuôn mẫu.
 
@@ -108,7 +108,7 @@ public class SanPhamVatLy implements CoTheMua, CoTheGiaoHang {
 
 ## 3. Abstract Class vs Interface — Khi Nào Dùng Cái Nào?
 
-Đây là câu hỏi thầy bị hỏi nhiều nhất. Hãy nhớ bảng này:
+Đây là câu hỏi tôi bị hỏi nhiều nhất. Hãy nhớ bảng này:
 
 | | Abstract Class | Interface |
 |--|---|---|

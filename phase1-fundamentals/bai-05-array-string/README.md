@@ -1,4 +1,4 @@
-# Bài 05: Mảng (Array) và Chuỗi (String) Nâng Cao
+﻿# Bài 05: Mảng (Array) và Chuỗi (String) Nâng Cao
 
 > 🟡 **Phase 1 – Bài 5/7** | Thời gian: ~3.5 giờ
 
@@ -6,7 +6,7 @@
 
 Cho đến giờ bạn chỉ lưu được **một giá trị** trong một biến. Nhưng thực tế, bạn thường cần xử lý **nhiều giá trị cùng kiểu** — danh sách sản phẩm, điểm của cả lớp, lịch sử giao dịch...
 
-Đây là lúc **mảng (array)** ra đời. Và cũng trong bài này, thầy sẽ dạy bạn khai thác sức mạnh thực sự của `String` — thứ bạn đã dùng từ bài 1 nhưng chưa hiểu sâu.
+Đây là lúc **mảng (array)** ra đời. Và cũng trong bài này, Tôi sẽ dạy bạn khai thác sức mạnh thực sự của `String` — thứ bạn đã dùng từ bài 1 nhưng chưa hiểu sâu.
 
 ---
 
@@ -27,7 +27,7 @@ int[] diem = {80, 90, 75, 95, 65}
  Index bắt đầu từ 0, không phải 1!
 ```
 
-> 💡 **Tại sao index bắt đầu từ 0?** Câu hỏi này thầy bị hỏi nhiều lắm. Câu trả lời: đây là quy ước từ những ngày đầu của lập trình, vì máy tính tính địa chỉ memory bắt đầu từ `0`. Gần như tất cả ngôn ngữ lập trình đều dùng 0-based index. Hãy quen với nó càng sớm càng tốt!
+> 💡 **Tại sao index bắt đầu từ 0?** Câu hỏi này tôi bị hỏi nhiều lắm. Câu trả lời: đây là quy ước từ những ngày đầu của lập trình, vì máy tính tính địa chỉ memory bắt đầu từ `0`. Gần như tất cả ngôn ngữ lập trình đều dùng 0-based index. Hãy quen với nó càng sớm càng tốt!
 
 ---
 
@@ -100,7 +100,7 @@ for (int i = 0; i < so.length; i++) {
 System.out.println("]");
 ```
 
-> 💡 **Mẹo nhỏ của thầy:** Khi mới học, hãy tự implement tay các thao tác như tìm max/min, đảo mảng, tìm kiếm... để luyện logic. Sau khi hiểu rồi mới dùng `Arrays.sort()` và các method có sẵn.
+> 💡 **Mẹo nhỏ của tôi:** Khi mới học, hãy tự implement tay các thao tác như tìm max/min, đảo mảng, tìm kiếm... để luyện logic. Sau khi hiểu rồi mới dùng `Arrays.sort()` và các method có sẵn.
 
 ---
 
@@ -148,7 +148,7 @@ for (int i = 0; i < diemLop.length; i++) {
 
 ## 5. String Là Bất Biến — Điều Quan Trọng Nhất
 
-Đây là thứ thầy thấy nhiều học sinh không để ý và sau này bị bug mà không biết tại sao:
+Đây là thứ tôi thấy nhiều học sinh không để ý và sau này bị bug mà không biết tại sao:
 
 ```java
 String s = "hello";
@@ -166,7 +166,7 @@ Mọi method của String đều **trả về String mới**, không thay đổi
 
 ## 6. Các Method String Hay Dùng Nhất
 
-Thầy chọn lọc những cái bạn sẽ dùng thường xuyên nhất:
+tôi chọn lọc những cái bạn sẽ dùng thường xuyên nhất:
 
 ```java
 String s = "  Hello, Java World!  ";
@@ -235,7 +235,7 @@ sb.replace(0, 5, "Hi"); // "Hi olleH"
 System.out.println(sb.length()); // Độ dài hiện tại
 ```
 
-> 💡 **Quy tắc thầy luôn dùng:** Nếu nối chuỗi trong vòng lặp hoặc nối nhiều hơn 5-6 lần → dùng `StringBuilder`. Nối 2-3 lần trong code thường → dùng `+` cho đơn giản.
+> 💡 **Quy tắc tôi luôn dùng:** Nếu nối chuỗi trong vòng lặp hoặc nối nhiều hơn 5-6 lần → dùng `StringBuilder`. Nối 2-3 lần trong code thường → dùng `+` cho đơn giản.
 
 ---
 
@@ -318,6 +318,6 @@ public class TimKiem {
 
 ## ➡️ Bài Tiếp Theo
 
-Bạn nhận ra các ví dụ đang ngày càng dài và lặp lại code giống nhau không? Ví dụ như phần tìm giá lớn nhất — bạn sẽ phải viết lại logic đó mỗi lần cần dùng. Bài tiếp theo thầy sẽ dạy cách đóng gói code thành **method** để dùng lại ở nhiều chỗ.
+Bạn nhận ra các ví dụ đang ngày càng dài và lặp lại code giống nhau không? Ví dụ như phần tìm giá lớn nhất — bạn sẽ phải viết lại logic đó mỗi lần cần dùng. Bài tiếp theo Tôi sẽ dạy cách đóng gói code thành **method** để dùng lại ở nhiều chỗ.
 
 👉 **[Bài 06: Method](../bai-06-method/README.md)**

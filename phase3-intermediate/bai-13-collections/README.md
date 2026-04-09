@@ -1,4 +1,4 @@
-# Bài 13: Collections Framework — List, Set, Map
+﻿# Bài 13: Collections Framework — List, Set, Map
 
 > 🟠 **Phase 3 – Bài 1/6** | Thời gian: ~4 giờ
 
@@ -41,7 +41,7 @@ import java.util.List;   // Nên dùng kiểu interface!
 // Khai báo
 List<String> sanPham = new ArrayList<>();
 //    ↑ Interface      ↑ Implementation
-// Thầy khuyên: luôn khai báo kiểu là interface (List, Set, Map)
+// tôi khuyên: luôn khai báo kiểu là interface (List, Set, Map)
 // Lý do: dễ đổi sang LinkedList/TreeSet sau này mà không sửa code dùng
 
 // Thêm phần tử
@@ -212,7 +212,7 @@ coDinh.add("D");  // ❌ UnsupportedOperationException!
 
 ## 6. Chọn Đúng Collection
 
-Thầy tóm tắt cho bạn nguyên tắc chọn:
+tôi tóm tắt cho bạn nguyên tắc chọn:
 
 ```
 Cần DANH SÁCH có thứ tự, cho phép trùng?
@@ -303,6 +303,6 @@ public class GioHang {
 
 ## ➡️ Bài Tiếp Theo
 
-Có bao giờ bạn thắc mắc: khi code bị lỗi - ứng dụng crash hoàn toàn hay cần xử lý khéo léo hơn? Bài tiếp theo thầy dạy cách **xử lý lỗi một cách có kiểm soát** — kỹ năng cực kỳ quan trọng trong ứng dụng thực tế.
+Có bao giờ bạn thắc mắc: khi code bị lỗi - ứng dụng crash hoàn toàn hay cần xử lý khéo léo hơn? Bài tiếp theo tôi dạy cách **xử lý lỗi một cách có kiểm soát** — kỹ năng cực kỳ quan trọng trong ứng dụng thực tế.
 
 👉 **[Bài 14: Exception Handling](../bai-14-exception-handling/README.md)**

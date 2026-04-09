@@ -1,10 +1,10 @@
-# Bài 24: Modern Java — Records, Sealed Classes, Pattern Matching
+﻿# Bài 24: Modern Java — Records, Sealed Classes, Pattern Matching
 
 > 🟣 **Phase 5 – Bài 1/3** | Thời gian: ~3 giờ
 
 ---
 
-Java đang phát triển nhanh hơn bao giờ hết. Từ Java 14 đến Java 21, rất nhiều tính năng mới được thêm vào để code Java ngắn hơn, an toàn hơn và expressive hơn. Bài này thầy sẽ giới thiệu những thứ thực sự hữu ích và bạn sẽ gặp trong codebase hiện đại.
+Java đang phát triển nhanh hơn bao giờ hết. Từ Java 14 đến Java 21, rất nhiều tính năng mới được thêm vào để code Java ngắn hơn, an toàn hơn và expressive hơn. Bài này Tôi sẽ giới thiệu những thứ thực sự hữu ích và bạn sẽ gặp trong codebase hiện đại.
 
 ---
 

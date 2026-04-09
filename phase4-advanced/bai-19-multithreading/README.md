@@ -1,10 +1,10 @@
-# Bài 19: Multithreading & Concurrency
+﻿# Bài 19: Multithreading & Concurrency
 
 > 🔴 **Phase 4 – Bài 1/5** | Thời gian: ~5 giờ
 
 ---
 
-Đây là chủ đề thầy phải thành thật: **Concurrency là phần khó nhất của Java**. Bug từ lỗi threading có thể chỉ xuất hiện 1 lần trong 10,000 lần chạy, cực kỳ khó reproduce và debug.
+Đây là chủ đề tôi phải thành thật: **Concurrency là phần khó nhất của Java**. Bug từ lỗi threading có thể chỉ xuất hiện 1 lần trong 10,000 lần chạy, cực kỳ khó reproduce và debug.
 
 Nhưng đây cũng là kiến thức phân biệt junior và mid-level developer. Một ứng dụng server thực tế phải xử lý hàng nghìn request đồng thời — nếu bạn không hiểu threading, bạn không thể build được hệ thống đó.
 

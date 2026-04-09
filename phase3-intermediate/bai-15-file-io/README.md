@@ -1,4 +1,4 @@
-# Bài 15: File I/O — Đọc và Ghi File
+﻿# Bài 15: File I/O — Đọc và Ghi File
 
 > 🟠 **Phase 3 – Bài 3/6** | Thời gian: ~2.5 giờ
 
@@ -6,7 +6,7 @@
 
 Dữ liệu trong RAM sẽ mất khi tắt máy. **File I/O** cho phép bạn lưu dữ liệu xuống đĩa và đọc lại sau. Một kỹ năng thiết yếu: đọc file config, ghi log, xử lý file CSV, import/export dữ liệu...
 
-Java có hai cách tiếp cận: **API cũ** (`java.io`) và **NIO.2** (`java.nio.file` — Java 7+). Thầy sẽ dạy cả hai nhưng nhấn mạnh NIO.2 vì nó sạch hơn và mạnh hơn.
+Java có hai cách tiếp cận: **API cũ** (`java.io`) và **NIO.2** (`java.nio.file` — Java 7+). Tôi sẽ dạy cả hai nhưng nhấn mạnh NIO.2 vì nó sạch hơn và mạnh hơn.
 
 ---
 

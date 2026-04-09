@@ -1,10 +1,10 @@
-# Bài 18: Stream API
+﻿# Bài 18: Stream API
 
 > 🟠 **Phase 3 – Bài 6/6** | Thời gian: ~4 giờ
 
 ---
 
-Nếu Lambda là cách viết hàm gọn gàng, thì **Stream API** là cách xử lý tập hợp dữ liệu một cách thanh lịch đến mức thầy có thể nói: "Đây là tính năng thay đổi cách tôi viết Java nhất."
+Nếu Lambda là cách viết hàm gọn gàng, thì **Stream API** là cách xử lý tập hợp dữ liệu một cách thanh lịch đến mức tôi có thể nói: "Đây là tính năng thay đổi cách tôi viết Java nhất."
 
 Trước Stream API, xử lý danh sách phải dùng vòng lặp, biến tạm, logic rải rác khắp nơi. Với Stream, bạn có thể diễn đạt **MUỐN LÀM GÌ** thay vì **LÀM THẾ NÀO**.
 

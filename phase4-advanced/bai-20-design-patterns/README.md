@@ -1,4 +1,4 @@
-# Bài 20: Design Patterns — Mẫu Thiết Kế
+﻿# Bài 20: Design Patterns — Mẫu Thiết Kế
 
 > 🔴 **Phase 4 – Bài 2/5** | Thời gian: ~5 giờ
 
@@ -6,7 +6,7 @@
 
 Hãy tưởng tượng bạn gặp một vấn đề trong lập trình. Bạn nghĩ ra giải pháp, sau đó nhận ra người khác đã gặp vấn đề y hệt và đã có giải pháp tốt hơn, được kiểm chứng qua hàng thập kỷ. **Design Pattern** chính là những giải pháp đã được đặt tên và tài liệu hóa đó.
 
-23 patterns trong cuốn "Gang of Four" (GoF) là nền tảng. Thầy sẽ dạy bạn những cái **hay gặp nhất trong code thực tế**, không phải học thuộc tất cả 23 cái.
+23 patterns trong cuốn "Gang of Four" (GoF) là nền tảng. Tôi sẽ dạy bạn những cái **hay gặp nhất trong code thực tế**, không phải học thuộc tất cả 23 cái.
 
 ---
 

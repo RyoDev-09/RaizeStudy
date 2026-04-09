@@ -1,10 +1,10 @@
-# Bài 25: Database với JDBC & JPA
+﻿# Bài 25: Database với JDBC & JPA
 
 > 🟣 **Phase 5 – Bài 2/3** | Thời gian: ~5 giờ
 
 ---
 
-Mọi ứng dụng thực tế đều cần lưu dữ liệu xuống database. Bài này thầy sẽ dạy bạn **2 tầng công nghệ**:
+Mọi ứng dụng thực tế đều cần lưu dữ liệu xuống database. Bài này Tôi sẽ dạy bạn **2 tầng công nghệ**:
 - **JDBC** — API cấp thấp, giao tiếp trực tiếp với DB bằng SQL
 - **JPA/Hibernate** — ORM (Object-Relational Mapping), map object Java ↔ bảng DB
 

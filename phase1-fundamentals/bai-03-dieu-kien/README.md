@@ -1,10 +1,10 @@
-# Bài 03: Câu Lệnh Điều Kiện
+﻿# Bài 03: Câu Lệnh Điều Kiện
 
 > 🟢 **Phase 1 – Bài 3/7** | Thời gian: ~2.5 giờ
 
 ---
 
-Bài trước bạn học cách lưu dữ liệu. Bài này thầy sẽ dạy bạn cách làm chương trình **đưa ra quyết định** — giống như não bạn lúc sáng dậy: "Nếu trời mưa thì mang ô, không thì thôi."
+Bài trước bạn học cách lưu dữ liệu. Bài này Tôi sẽ dạy bạn cách làm chương trình **đưa ra quyết định** — giống như não bạn lúc sáng dậy: "Nếu trời mưa thì mang ô, không thì thôi."
 
 Trong lập trình ta gọi đây là **câu lệnh điều kiện**. Và đây là thứ mà bạn sẽ dùng trong hầu hết mọi class bạn viết.
 
@@ -93,7 +93,7 @@ boolean online = true;
 String trangThai = online ? "🟢 Đang hoạt động" : "🔴 Ngoại tuyến";
 ```
 
-> ⚠️ **Không nên:** Lồng ternary trong ternary. Thầy thấy nhiều học sinh cố viết như này và sau đó chính họ không hiểu code của mình:
+> ⚠️ **Không nên:** Lồng ternary trong ternary. tôi thấy nhiều học sinh cố viết như này và sau đó chính họ không hiểu code của mình:
 > ```java
 > // Rất khó đọc — đừng làm vậy!
 > String xepLoai = diem >= 9 ? "XS" : diem >= 8 ? "Giỏi" : diem >= 6.5 ? "Khá" : "TB";
@@ -185,7 +185,7 @@ int soNgayTrongThang = switch (thang) {
 };
 ```
 
-Thầy **khuyên dùng switch expression** khi viết Java 14+ vì nó an toàn hơn (không có fall-through) và đọc rõ ràng hơn.
+tôi **khuyên dùng switch expression** khi viết Java 14+ vì nó an toàn hơn (không có fall-through) và đọc rõ ràng hơn.
 
 ---
 
@@ -268,6 +268,6 @@ public class PhanLoaiDon {
 
 ## ➡️ Bài Tiếp Theo
 
-Code của bạn bây giờ có thể quyết định. Nhưng nếu cần làm một việc 100 lần thì sao? Bài tiếp theo thầy giải thích cách tự động hóa sự lặp lại — **vòng lặp**.
+Code của bạn bây giờ có thể quyết định. Nhưng nếu cần làm một việc 100 lần thì sao? Bài tiếp theo Tôi giải thích cách tự động hóa sự lặp lại — **vòng lặp**.
 
 👉 **[Bài 04: Vòng Lặp](../bai-04-vong-lap/README.md)**

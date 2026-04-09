@@ -1,4 +1,4 @@
-# Bài 08: Constructor, `this` và `static` Nâng Cao
+﻿# Bài 08: Constructor, `this` và `static` Nâng Cao
 
 > 🟡 **Phase 2 – Bài 2/6** | Thời gian: ~3 giờ
 
@@ -16,7 +16,7 @@ sp.danhMuc = "Vũ khí";
 
 Năm dòng chỉ để tạo một sản phẩm. Và nếu bạn quên gán một field thì sao? Object sẽ có giá trị `null` hoặc `0` ở đó mà bạn không hay biết — dẫn đến bug rất khó tìm.
 
-Hôm nay thầy sẽ dạy bạn cách viết **Constructor** để tạo object an toàn, gọn gàng hơn rất nhiều.
+Hôm nay Tôi sẽ dạy bạn cách viết **Constructor** để tạo object an toàn, gọn gàng hơn rất nhiều.
 
 ---
 
@@ -150,7 +150,7 @@ SanPham sp = new SanPham();         // ❌ Lỗi compile!
 SanPham sp = new SanPham("Kiếm");  // ✅ OK
 ```
 
-Thầy hay gặp lỗi này trong dự án khi dùng Framework — biết trước để không bị bất ngờ.
+tôi hay gặp lỗi này trong dự án khi dùng Framework — biết trước để không bị bất ngờ.
 
 ---
 

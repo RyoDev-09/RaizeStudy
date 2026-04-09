@@ -1,10 +1,10 @@
-# Bài 02: Biến & Kiểu Dữ Liệu
+﻿# Bài 02: Biến & Kiểu Dữ Liệu
 
 > 🟢 **Phase 1 – Bài 2/7** | Thời gian: ~3 giờ
 
 ---
 
-Bài trước bạn đã in được chữ ra màn hình — nhưng dữ liệu đó được gõ thẳng vào code, cứng đơ. Bài này thầy sẽ dạy bạn cách **lưu trữ dữ liệu vào biến** để chương trình linh hoạt hơn rất nhiều.
+Bài trước bạn đã in được chữ ra màn hình — nhưng dữ liệu đó được gõ thẳng vào code, cứng đơ. Bài này Tôi sẽ dạy bạn cách **lưu trữ dữ liệu vào biến** để chương trình linh hoạt hơn rất nhiều.
 
 Hãy tưởng tượng biến như một **chiếc hộp có nhãn dán**. Bạn có thể bỏ bất cứ thứ gì vào hộp, lấy ra, hoặc thay thế nội dung bên trong — miễn là đúng kiểu dữ liệu của hộp đó.
 
@@ -24,7 +24,7 @@ int tuoi = 20;
 
 ## 2. 8 Kiểu Dữ Liệu Nguyên Thủy (Primitive Types)
 
-Java có đúng 8 kiểu nguyên thủy. Thầy sẽ giải thích từng cái theo thứ tự từ hay dùng nhất:
+Java có đúng 8 kiểu nguyên thủy. Tôi sẽ giải thích từng cái theo thứ tự từ hay dùng nhất:
 
 ### Nhóm số nguyên
 
@@ -44,7 +44,7 @@ double pi = 3.14159265358979;  // Dùng cho số thực – chính xác hơn flo
 float nhietDo = 36.5f;          // Hậu tố f bắt buộc, ít dùng hơn double
 ```
 
-Thầy gần như luôn dùng `double`, không dùng `float`. Lý do đơn giản: `double` chính xác hơn và máy tính hiện đại gần như không tốn thêm chi phí gì khi dùng `double`.
+tôi gần như luôn dùng `double`, không dùng `float`. Lý do đơn giản: `double` chính xác hơn và máy tính hiện đại gần như không tốn thêm chi phí gì khi dùng `double`.
 
 > ⚠️ **Cạm bẫy kinh điển với số thực:**
 > ```java
@@ -129,7 +129,7 @@ var diemTB = 8.5;         // Java tự hiểu là double
 // Không dùng được cho field của class
 ```
 
-`var` giúp code ngắn hơn khi kiểu dữ liệu đã rõ ràng từ ngữ cảnh. Nhưng thầy khuyên: khi mới học, **đừng dùng `var`** — hãy ghi rõ kiểu để tự luyện não.
+`var` giúp code ngắn hơn khi kiểu dữ liệu đã rõ ràng từ ngữ cảnh. Nhưng tôi khuyên: khi mới học, **đừng dùng `var`** — hãy ghi rõ kiểu để tự luyện não.
 
 ---
 
@@ -172,7 +172,7 @@ System.out.println(x++);  // In ra 5, SAU ĐÓ mới tăng → x = 6
 System.out.println(++x);  // Tăng TRƯỚC → x = 7, rồi in ra 7
 ```
 
-Thầy biết hai cái này hơi rối. Mẹo đơn giản: `++x` (trước) = tăng rồi mới lấy. `x++` (sau) = lấy rồi mới tăng. Trong thực tế, thầy hầu như chỉ dùng trong vòng `for` nên hiếm khi cần phân biệt.
+tôi biết hai cái này hơi rối. Mẹo đơn giản: `++x` (trước) = tăng rồi mới lấy. `x++` (sau) = lấy rồi mới tăng. Trong thực tế, tôi hầu như chỉ dùng trong vòng `for` nên hiếm khi cần phân biệt.
 
 ### So sánh và Logic
 
@@ -217,7 +217,7 @@ System.out.println(piInt);  // 3 (không phải 4!)
 
 ## 9. Ví Dụ Thực Tế: Hóa Đơn Mua Hàng
 
-Bây giờ hãy kết hợp tất cả lại. Thầy sẽ viết một chương trình tính hóa đơn đơn giản:
+Bây giờ hãy kết hợp tất cả lại. Tôi sẽ viết một chương trình tính hóa đơn đơn giản:
 
 ```java
 public class HoaDon {
@@ -264,6 +264,6 @@ Hãy **tự chạy** và thay thử số liệu khác nhau. Bạn thử thay `so
 
 ## ➡️ Bài Tiếp Theo
 
-Bây giờ bạn đã có thể lưu dữ liệu vào biến rồi. Nhưng chương trình vẫn chỉ chạy một chiều — bước 1, bước 2, bước 3... Bài tiếp theo thầy sẽ dạy bạn cách làm chương trình "thông minh" hơn: biết ra quyết định dựa trên điều kiện.
+Bây giờ bạn đã có thể lưu dữ liệu vào biến rồi. Nhưng chương trình vẫn chỉ chạy một chiều — bước 1, bước 2, bước 3... Bài tiếp theo Tôi sẽ dạy bạn cách làm chương trình "thông minh" hơn: biết ra quyết định dựa trên điều kiện.
 
 👉 **[Bài 03: Câu Lệnh Điều Kiện](../bai-03-dieu-kien/README.md)**

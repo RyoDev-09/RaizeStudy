@@ -1,10 +1,10 @@
-# Bài 26: Spring Boot — Bước Vào Framework
+﻿# Bài 26: Spring Boot — Bước Vào Framework
 
 > 🟣 **Phase 5 – Bài 3/3** | Thời gian: ~8 giờ (Bài học lớn nhất!)
 
 ---
 
-Đây là bài cuối của lộ trình. Nhưng thầy muốn nói rõ trước: **Spring Boot không phải điểm kết thúc — đây là điểm bắt đầu của một hành trình mới**. Tuy nhiên, sau 25 bài học, bạn đã có đủ nền tảng để học Spring Boot một cách thực sự hiểu sâu, không chỉ copy-paste.
+Đây là bài cuối của lộ trình. Nhưng Tôi muốn nói rõ trước: **Spring Boot không phải điểm kết thúc — đây là điểm bắt đầu của một hành trình mới**. Tuy nhiên, sau 25 bài học, bạn đã có đủ nền tảng để học Spring Boot một cách thực sự hiểu sâu, không chỉ copy-paste.
 
 Dự án RaizeShop mà bạn đang tham khảo — chính là Spring Boot!
 
@@ -409,7 +409,7 @@ Phase 4 ✅  Advanced Java        — Threading, Design Patterns, JVM...
 Phase 5 ✅  Modern Ecosystem     — Modern Java, JPA, Spring Boot...
 ```
 
-**Lời nhắn của thầy:**
+**Lời nhắn của tôi:**
 > Code đẹp không phải code thông minh — code đẹp là code dễ đọc, dễ test, dễ thay đổi. Hãy luôn đặt câu hỏi "Tại sao?" và "Có cách nào tốt hơn không?" khi viết code.
 >
 > Chúc bạn trở thành Java developer xuất sắc!
