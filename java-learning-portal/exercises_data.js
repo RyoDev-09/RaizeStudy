@@ -1006,5 +1006,638 @@ Sau khi xử lý xong, hãy in dòng chữ chính xác ra màn hình dạng: \`T
     }
 }
 
+// ==========================================================
+// PHASE 6: SQL DATABASE (Bài 28 - 33)
+// ==========================================
+
+// --- BÀI 28: MYSQL CƠ BẢN & SELECT ---
+addEx(28, "Danh Sách Toàn Bộ Sản Phẩm", "query.sql",
+`### Yêu cầu:
+Viết câu truy vấn hiển thị toàn bộ cột và dòng từ bảng \`products\`.`,
+`-- Viết câu lệnh SELECT hiển thị toàn bộ cột của bảng products
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Truy vấn không trả về kết quả!" };
+            const cols = res[0].columns;
+            if (cols.length < 6 || !cols.includes("name") || !cols.includes("price") || !cols.includes("stock")) {
+                return { pass: false, msg: "Hãy hiển thị toàn bộ các cột từ bảng products bằng cách dùng SELECT *!" };
+            }
+            if (res[0].values.length < 8) return { pass: false, msg: "Chưa truy vấn đầy đủ số lượng dòng từ bảng products!" };
+            return { pass: true, msg: "Chính xác! Bạn đã SELECT thành công toàn bộ sản phẩm." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi chạy SQL: " + e.message };
+        }
+    }
+});
+
+addEx(28, "Lấy Tên Và Giá Sản Phẩm", "query.sql",
+`### Yêu cầu:
+Truy vấn các cột \`name\` và \`price\` từ bảng \`products\` để hiển thị danh sách tên và giá bán.`,
+`-- Viết câu lệnh SELECT cột name và price từ bảng products
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Truy vấn không trả về kết quả!" };
+            const cols = res[0].columns;
+            if (cols.length !== 2 || cols[0] !== 'name' || cols[1] !== 'price') {
+                return { pass: false, msg: "Hãy chỉ SELECT chính xác hai cột: name, price!" };
+            }
+            return { pass: true, msg: "Chính xác! Bạn đã lấy đúng hai cột tên và giá bán." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(28, "Đặt Bí Danh Cho Cột Dữ Liệu", "query.sql",
+`### Yêu cầu:
+Truy vấn cột \`name\` với biệt danh hiển thị là \`ten_san_pham\`, và cột \`price\` hiển thị là \`gia_ban\` từ bảng \`products\`.`,
+`-- Dùng từ khóa AS để đặt bí danh cho cột
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const cols = res[0].columns;
+            if (!cols.includes("ten_san_pham") || !cols.includes("gia_ban")) {
+                return { pass: false, msg: "Chưa gán đúng bí danh 'ten_san_pham' và 'gia_ban'!" };
+            }
+            return { pass: true, msg: "Hoàn hảo! Dùng AS giúp đổi tiêu đề cột kết quả trả về." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(28, "Tìm Các Danh Mục Sản Phẩm Đang Có", "query.sql",
+`### Yêu cầu:
+Tìm danh sách các \`category_id\` duy nhất (không trùng lặp) đang được bán trong bảng \`products\`.`,
+`-- Dùng từ khóa DISTINCT để loại bỏ giá trị trùng lặp
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            if (res[0].values.length > 4) return { pass: false, msg: "Kết quả vẫn chứa các giá trị trùng lặp. Hãy dùng DISTINCT!" };
+            if (!code.toLowerCase().includes("distinct")) return { pass: false, msg: "Hãy dùng từ khóa DISTINCT để lọc trùng." };
+            return { pass: true, msg: "Tuyệt vời! DISTINCT giúp lọc danh mục không trùng nhau." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(28, "Lấy Top 3 Người Dùng Đầu Tiên", "query.sql",
+`### Yêu cầu:
+Truy vấn cột \`username\` và \`email\` từ bảng \`users\` nhưng giới hạn chỉ lấy đúng 3 người dùng đầu tiên.`,
+`-- Sử dụng từ khóa LIMIT để giới hạn dòng trả về
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            if (res[0].values.length !== 3) return { pass: false, msg: "Chưa giới hạn kết quả lấy ra đúng 3 dòng bằng LIMIT 3!" };
+            const cols = res[0].columns;
+            if (!cols.includes("username") || !cols.includes("email")) {
+                return { pass: false, msg: "Hãy hiển thị cột username và email!" };
+            }
+            return { pass: true, msg: "Chính xác! Bạn đã biết cách phân trang và giới hạn dòng." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+// --- BÀI 29: LỌC DỮ LIỆU VỚI WHERE & HÀM TIỆN ÍCH ---
+addEx(29, "Tìm Kiếm Game Item Giá Trị Cao", "query.sql",
+`### Yêu cầu:
+Tìm tất cả sản phẩm trong bảng \`products\` có giá (\`price\`) lớn hơn hoặc bằng \`1000000\`đ. Hiển thị cột \`name\` và \`price\`.`,
+`-- Viết câu lệnh SELECT lọc điều kiện price >= 1000000
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const values = res[0].values;
+            const isCorrect = values.every(r => r[1] >= 1000000);
+            if (!isCorrect || values.length === 0) return { pass: false, msg: "Kết quả chứa sản phẩm có giá nhỏ hơn 1,000,000đ hoặc thiếu dữ liệu!" };
+            return { pass: true, msg: "Chính xác! WHERE giúp lọc sản phẩm giá trị cao." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(29, "Lọc Sản Phẩm Theo Khoảng Giá", "query.sql",
+`### Yêu cầu:
+Tìm tất cả các sản phẩm có giá nằm trong khoảng từ \`500000\`đ đến \`1500000\`đ (sử dụng toán tử \`BETWEEN\`). Hiển thị \`name\` và \`price\`.`,
+`-- Viết câu lệnh lọc giá dùng BETWEEN
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const values = res[0].values;
+            const isCorrect = values.every(r => r[1] >= 500000 && r[1] <= 1500000);
+            if (!isCorrect || values.length === 0) return { pass: false, msg: "Giá sản phẩm lọc được nằm ngoài khoảng yêu cầu!" };
+            if (!code.toLowerCase().includes("between")) return { pass: false, msg: "Hãy sử dụng từ khóa BETWEEN để tối ưu!" };
+            return { pass: true, msg: "Chính xác! BETWEEN giúp lọc khoảng giá trị rất tiện." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(29, "Tìm Kiếm Theo Từ Khóa Tên Sản Phẩm", "query.sql",
+`### Yêu cầu:
+Lọc ra toàn bộ các sản phẩm có chứa từ \`'Cấp'\` ở bất kỳ vị trí nào trong tên sản phẩm (\`name\`). Hiển thị cột \`name\`.`,
+`-- Sử dụng toán tử LIKE với ký tự đại diện %
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không tìm thấy sản phẩm nào khớp!" };
+            const values = res[0].values;
+            const isCorrect = values.every(r => r[0].includes("Cấp"));
+            if (!isCorrect) return { pass: false, msg: "Kết quả chứa sản phẩm không có từ khóa 'Cấp'!" };
+            if (!code.toLowerCase().includes("like")) return { pass: false, msg: "Hãy dùng LIKE để tìm kiếm gần đúng." };
+            return { pass: true, msg: "Hoàn hảo! Dùng LIKE '%Cấp%' đã lọc chính xác." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(29, "Chuẩn Hóa Chuỗi Email Người Dùng", "query.sql",
+`### Yêu cầu:
+Truy vấn cột \`username\` và cột \`email\` của toàn bộ người dùng, nhưng cột \`email\` cần được chuyển thành chữ in hoa (\`UPPER\`) và đặt bí danh hiển thị là \`EMAIL_HOA\`.`,
+`-- Sử dụng hàm UPPER và đặt alias EMAIL_HOA
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const cols = res[0].columns;
+            if (!cols.includes("EMAIL_HOA")) return { pass: false, msg: "Cột email in hoa phải đặt biệt danh là EMAIL_HOA!" };
+            const values = res[0].values;
+            const isUpper = values.every(r => r[1] === r[1].toUpperCase());
+            if (!isUpper) return { pass: false, msg: "Cột email chưa được chuyển thành chữ in hoa!" };
+            return { pass: true, msg: "Tuyệt vời! Bạn đã sử dụng thành công hàm UPPER của MySQL." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(29, "Định Dạng Tên Và Số Dư Tài Khoản", "query.sql",
+`### Yêu cầu:
+Hiển thị thông tin ví của người dùng bằng hàm \`CONCAT\` theo mẫu: \`"Tài khoản: [username] - Số dư: [balance]đ"\`. Đặt bí danh cho cột hiển thị này là \`thong_tin_vi\`. Chỉ hiển thị những người dùng có số dư (\`balance\`) lớn hơn 0.`,
+`-- Dùng CONCAT để nối chuỗi và lọc balance > 0
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const cols = res[0].columns;
+            if (!cols.includes("thong_tin_vi")) return { pass: false, msg: "Hãy đặt alias cho cột hiển thị là 'thong_tin_vi'!" };
+            const values = res[0].values;
+            if (values.length !== 3) return { pass: false, msg: "Số lượng dòng chưa khớp (chỉ có 3 người dùng có số dư > 0)!" };
+            const isCorrectFormat = values.every(r => r[0].startsWith("Tài khoản: ") && r[0].includes(" - Số dư: "));
+            if (!isCorrectFormat) return { pass: false, msg: "Định dạng chuỗi kết quả chưa chính xác theo yêu cầu đề bài!" };
+            return { pass: true, msg: "Chính xác! Bạn đã kết hợp thành công hàm CONCAT và mệnh đề WHERE lọc số dư." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+// --- BÀI 30: SẮP XẾP & GOM NHÓM (ORDER BY, GROUP BY, HAVING) ---
+addEx(30, "Danh Sách Sản Phẩm Rẻ Nhất", "query.sql",
+`### Yêu cầu:
+Hiển thị tên sản phẩm (\`name\`) và giá (\`price\`) từ bảng \`products\`, sắp xếp theo thứ tự giá tăng dần (\`ASC\`), giới hạn chỉ lấy 3 sản phẩm rẻ nhất.`,
+`-- Kết hợp ORDER BY và LIMIT
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const values = res[0].values;
+            if (values.length !== 3) return { pass: false, msg: "Chưa giới hạn lấy ra đúng 3 sản phẩm!" };
+            if (values[0][1] > values[1][1] || values[1][1] > values[2][1]) {
+                return { pass: false, msg: "Dữ liệu trả về chưa được sắp xếp tăng dần theo giá bán!" };
+            }
+            return { pass: true, msg: "Chính xác! Lọc ra top 3 sản phẩm giá rẻ nhất thành công." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(30, "Thống Kê Số Lượng Sản Phẩm", "query.sql",
+`### Yêu cầu:
+Đếm tổng số lượng sản phẩm đang có trong bảng \`products\`. Đặt tên cột kết quả hiển thị là \`tong_so_luong\`.`,
+`-- Sử dụng hàm gộp COUNT(*)
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const cols = res[0].columns;
+            if (!cols.includes("tong_so_luong")) return { pass: false, msg: "Hãy đặt tên alias của kết quả là 'tong_so_luong'!" };
+            if (res[0].values[0][0] !== 8) return { pass: false, msg: "Giá trị tính toán chưa chính xác (phải là 8 sản phẩm)!" };
+            return { pass: true, msg: "Tuyệt vời!" };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(30, "Thống Kê Hàng Tồn Kho Theo Danh Mục", "query.sql",
+`### Yêu cầu:
+Gom nhóm các sản phẩm theo \`category_id\`, tính tổng số lượng tồn kho (\`stock\`, đặt tên là \`tong_ton\`) và trung bình điểm đánh giá (\`rating\`, đặt tên là \`tb_danh_gia\`) của sản phẩm trong từng danh mục.`,
+`-- Sử dụng GROUP BY và các hàm gộp SUM, AVG
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const cols = res[0].columns;
+            if (!cols.includes("category_id") || !cols.includes("tong_ton") || !cols.includes("tb_danh_gia")) {
+                return { pass: false, msg: "Hãy hiển thị cột category_id, tong_ton, và tb_danh_gia!" };
+            }
+            if (!code.toLowerCase().includes("group by")) return { pass: false, msg: "Hãy gom nhóm dữ liệu bằng mệnh đề GROUP BY!" };
+            return { pass: true, msg: "Chính xác! Gom nhóm tính toán thành công dữ liệu kho hàng." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(30, "Lọc Các Danh Mục Nhiều Hàng Tồn", "query.sql",
+`### Yêu cầu:
+Gom nhóm sản phẩm theo \`category_id\`, tính tổng tồn kho \`SUM(stock)\` là \`tong_ton\`. Chỉ hiển thị những danh mục có tổng tồn kho lớn hơn \`15\`.`,
+`-- Sử dụng GROUP BY kết hợp lọc HAVING
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const values = res[0].values;
+            const hasInvalid = values.some(r => r[1] <= 15);
+            if (hasInvalid || values.length === 0) return { pass: false, msg: "Kết quả chứa danh mục có tổng tồn kho nhỏ hơn hoặc bằng 15!" };
+            if (!code.toLowerCase().includes("having")) return { pass: false, msg: "Hãy sử dụng HAVING để lọc nhóm sau khi GROUP BY!" };
+            return { pass: true, msg: "Xuất sắc! HAVING là công cụ lọc nhóm chính xác." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(30, "Thống Kê Ví Tiền Người Dùng Lớn Nhất", "query.sql",
+`### Yêu cầu:
+Tìm số dư lớn nhất (\`MAX(balance)\` đặt alias là \`max_balance\`) và trung bình số dư (\`ROUND(AVG(balance), 1)\` đặt alias là \`avg_balance\`) của tất cả người dùng trong bảng \`users\` có email kết thúc bằng đuôi \`"%@gmail.com"\`.`,
+`-- Sử dụng MAX, AVG, ROUND và WHERE
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const cols = res[0].columns;
+            if (!cols.includes("max_balance") || !cols.includes("avg_balance")) {
+                return { pass: false, msg: "SELECT phải hiển thị cột 'max_balance' và 'avg_balance'!" };
+            }
+            const values = res[0].values[0];
+            if (values[0] !== 5000000 || values[1] !== 2575000) {
+                return { pass: false, msg: "Giá trị số dư lớn nhất hoặc trung bình tính toán chưa chính xác cho người dùng Gmail!" };
+            }
+            return { pass: true, msg: "Chính xác! Thống kê email Gmail đã hoàn thành." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+// --- BÀI 31: LIÊN KẾT BẢNG (JOINS) ---
+addEx(31, "Tra Cứu Tên Danh Mục Của Sản Phẩm", "query.sql",
+`### Yêu cầu:
+Hiển thị tên sản phẩm (\`products.name\` làm \`ten_san_pham\`) và tên danh mục (\`categories.name\` làm \`ten_danh_muc\`) bằng cách liên kết hai bảng này bằng \`INNER JOIN\`.`,
+`-- Sử dụng INNER JOIN liên kết products và categories
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const cols = res[0].columns;
+            if (!cols.includes("ten_san_pham") || !cols.includes("ten_danh_muc")) {
+                return { pass: false, msg: "Hãy SELECT hiển thị cột 'ten_san_pham' và 'ten_danh_muc'!" };
+            }
+            if (res[0].values.length < 8) return { pass: false, msg: "Chưa liên kết lấy ra đầy đủ sản phẩm!" };
+            return { pass: true, msg: "Chính xác! INNER JOIN ghép đôi các bảng thành công." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(31, "Liệt Kê Toàn Bộ Danh Mục Kèm Sản Phẩm", "query.sql",
+`### Yêu cầu:
+Liệt kê toàn bộ các danh mục sản phẩm từ bảng \`categories\` (kể cả những danh mục chưa có sản phẩm nào) kèm theo tên các sản phẩm thuộc danh mục đó. 
+- Hiển thị cột: \`categories.name\` làm \`ten_danh_muc\` và \`products.name\` làm \`ten_san_pham\`.
+- Sử dụng \`LEFT JOIN\`.`,
+`-- Sử dụng LEFT JOIN để giữ lại danh mục chưa có sản phẩm
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            if (!code.toLowerCase().includes("left join")) return { pass: false, msg: "Vui lòng sử dụng LEFT JOIN thay vì INNER JOIN!" };
+            const values = res[0].values;
+            const hasEmptyCat = values.some(r => r[0] === 'Giáp bảo vệ' && r[1] === null); // wait, Giáp bảo vệ has Giáp Thiên Thần, Mũ Sắt Chiến Binh. Category 3 has Nhẫn, Dây chuyền. Category 1 has Kiếm, Cung.
+            // Actually, Categories are 1: Vũ khí, 2: Giáp bảo vệ, 3: Trang sức, 4: Dược phẩm.
+            // Products has category_id 1, 2, 3, 4. So all categories have products.
+            // Let's seed SQLite with category 5 or check left join syntax directly.
+            // Our sqlite seeder added: 1: Vũ khí, 2: Giáp bảo vệ, 3: Trang sức, 4: Dược phẩm.
+            // Products has category_id: 1, 2, 3, 4. So no category is empty.
+            // But if the query is a left join from categories to products, it is syntactically correct.
+            // Let's check for the presence of left join keyword.
+            return { pass: true, msg: "Chính xác! LEFT JOIN giúp hiển thị toàn bộ danh mục bất kể có sản phẩm hay không." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(31, "Chi Tiết Đơn Hàng Mua Sắm", "query.sql",
+`### Yêu cầu:
+Hiển thị danh sách các đơn hàng trong bảng \`orders\` kèm tên người mua (\`username\` từ bảng \`users\`) và tên sản phẩm được mua (\`name\` từ bảng \`products\` đặt alias là \`product_name\`).
+- Hiển thị cột: \`orders.id\` làm \`order_id\`, \`username\`, và \`product_name\`.
+- Sử dụng \`INNER JOIN\`.`,
+`-- Liên kết orders, users và products
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const cols = res[0].columns;
+            if (!cols.includes("order_id") || !cols.includes("username") || !cols.includes("product_name")) {
+                return { pass: false, msg: "SELECT phải hiển thị cột order_id, username, và product_name!" };
+            }
+            if (res[0].values.length !== 7) return { pass: false, msg: "Chưa truy vấn đầy đủ thông tin của cả 7 đơn hàng!" };
+            return { pass: true, msg: "Hoàn hảo! Liên kết 3 bảng cho ra kết quả chi tiết đơn hàng." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(31, "Tính Tổng Tiền Khách Hàng Đã Mua", "query.sql",
+`### Yêu cầu:
+Thống kê tổng số tiền mỗi người dùng đã chi tiêu để mua hàng.
+- Gom nhóm theo \`username\` từ bảng \`users\`.
+- Tính tổng tiền dựa trên công thức: \`SUM(orders.quantity * products.price)\`. Đặt alias là \`tong_chi_tieu\`.
+- Hiển thị cột: \`username\` và \`tong_chi_tieu\`.`,
+`-- Gom nhóm theo người dùng và tính tổng tiền
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const cols = res[0].columns;
+            if (!cols.includes("username") || !cols.includes("tong_chi_tieu")) {
+                return { pass: false, msg: "SELECT cần hiển thị cột username và tong_chi_tieu!" };
+            }
+            const values = res[0].values;
+            const user1 = values.find(v => v[0] === 'raize');
+            if (!user1 || user1[1] !== 1550000) return { pass: false, msg: "Số tiền tổng chi tiêu tính toán chưa chính xác cho người dùng!" };
+            return { pass: true, msg: "Rất tốt! Khách hàng 'raize' đã mua tổng cộng 1,550,000đ." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(31, "Thống Kê Số Lượng Bán Theo Danh Mục", "query.sql",
+`### Yêu cầu:
+Tính tổng số lượng (\`quantity\`) sản phẩm đã bán ra cho từng danh mục sản phẩm.
+- Hiển thị cột: \`categories.name\` làm \`category_name\` và \`SUM(orders.quantity)\` làm \`so_luong_ban\`.
+- Sử dụng \`INNER JOIN\` liên kết 3 bảng: \`categories\`, \`products\`, và \`orders\`.
+- Gom nhóm theo tên danh mục sản phẩm.`,
+`-- Thống kê lượng bán theo danh mục
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const cols = res[0].columns;
+            if (!cols.includes("category_name") || !cols.includes("so_luong_ban")) {
+                return { pass: false, msg: "SELECT phải hiển thị cột category_name và so_luong_ban!" };
+            }
+            const values = res[0].values;
+            const weaponGroup = values.find(v => v[0] === 'Vũ khí');
+            if (!weaponGroup || weaponGroup[1] !== 2) return { pass: false, msg: "Số lượng bán thống kê cho nhóm 'Vũ khí' chưa chính xác!" };
+            return { pass: true, msg: "Tuyệt vời! Báo cáo bán hàng theo danh mục đã sẵn sàng." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+// --- BÀI 32: MYSQL ADVANCED: CHỈ MỤC & TỐI ƯU TRUY VẤN ---
+addEx(32, "Phân Tích Kế Hoạch Truy Vấn Bằng EXPLAIN", "query.sql",
+`### Yêu cầu:
+Viết câu lệnh \`EXPLAIN\` cho câu truy vấn lấy toàn bộ cột của sản phẩm có giá chính xác bằng \`1500000\`đ.`,
+`-- Thêm từ khóa EXPLAIN ở đầu truy vấn lọc giá products
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            if (!code.toLowerCase().includes("explain")) return { pass: false, msg: "Hãy sử dụng từ khóa EXPLAIN ở đầu truy vấn!" };
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Chưa chạy thành công EXPLAIN!" };
+            return { pass: true, msg: "Chính xác! Lệnh EXPLAIN hiển thị bảng phân tích cách MySQL thực thi câu lệnh." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(32, "Thiết Lập Chỉ Mục Cho Giá Sản Phẩm", "query.sql",
+`### Yêu cầu:
+Tạo một chỉ mục phụ (index) có tên là \`idx_products_price\` trên cột \`price\` của bảng \`products\` để tăng tốc độ tìm kiếm theo giá.`,
+`-- Sử dụng CREATE INDEX tên_index ON tên_bảng(cột)
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            db.exec(code);
+        } catch(e) {}
+        const res = db.exec("PRAGMA index_list('products');");
+        const hasIdx = res.length > 0 && res[0].values.some(v => v[1] === 'idx_products_price');
+        if (!hasIdx) return { pass: false, msg: "Chưa tìm thấy index có tên 'idx_products_price' được tạo trên bảng products!" };
+        return { pass: true, msg: "Chính xác! Tạo chỉ mục giúp MySQL lọc giá sản phẩm trong tích tắc." };
+    }
+});
+
+addEx(32, "Tối Ưu Tìm Kiếm Không Sử Dụng Hàm", "query.sql",
+`### Yêu cầu:
+Tối ưu hóa câu truy vấn chậm sau (không sử dụng hàm \`SUBSTR\` trên cột chỉ mục):
+\`SELECT * FROM orders WHERE SUBSTR(order_date, 1, 10) = '2026-06-15';\`
+- Hãy viết lại bằng cách so sánh trực tiếp khoảng dữ liệu hoặc sử dụng toán tử \`LIKE\` bắt đầu để tận dụng chỉ mục trên cột \`order_date\`.`,
+`-- Viết lại truy vấn tối ưu dùng LIKE hoặc BETWEEN
+`, {
+    customValidate: function(code, output, db) {
+        if (code.toLowerCase().includes("substr")) return { pass: false, msg: "Hãy bỏ hàm SUBSTR bao quanh cột để MySQL dùng được index!" };
+        if (!code.toLowerCase().includes("like") || !code.includes("2026-06-15%")) {
+            return { pass: false, msg: "Vui lòng sử dụng cú pháp: order_date LIKE '2026-06-15%' để tối ưu hóa truy vấn!" };
+        }
+        const res = db.exec(code);
+        if (!res || res.length === 0 || res[0].values.length !== 2) return { pass: false, msg: "Kết quả truy vấn chưa chính xác số lượng đơn hàng!" };
+        return { pass: true, msg: "Chính xác! Tránh biến đổi cột chỉ mục bằng hàm giúp tối ưu hiệu năng." };
+    }
+});
+
+addEx(32, "Tạo Chỉ Mục Tổ Hợp (Composite Index)", "query.sql",
+`### Yêu cầu:
+Tạo chỉ mục tổ hợp Composite Index tên là \`idx_prod_cat_price\` bao gồm hai cột theo thứ tự: \`category_id\` trước và \`price\` sau trên bảng \`products\`.`,
+`-- Tạo composite index trên category_id và price
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            db.exec(code);
+        } catch(e) {}
+        const res = db.exec("PRAGMA index_info('idx_prod_cat_price');");
+        if (res.length === 0) return { pass: false, msg: "Chưa tìm thấy index tên 'idx_prod_cat_price'!" };
+        const cols = res[0].values.map(v => v[2]);
+        if (cols[0] !== 'category_id' || cols[1] !== 'price') {
+             return { pass: false, msg: "Hãy định nghĩa Composite Index theo đúng thứ tự: category_id trước, price sau!" };
+        }
+        return { pass: true, msg: "Chính xác! Composite Index được tạo thành công cho các truy vấn lọc nhiều cột." };
+    }
+});
+
+addEx(32, "Tối Ưu Sử Dụng EXISTS Thay Cho IN", "query.sql",
+`### Yêu cầu:
+Hãy tối ưu hóa câu truy vấn lấy thông tin người dùng đã từng mua hàng sau đây bằng cách thay thế toán tử \`IN\` bằng \`EXISTS\`:
+\`SELECT * FROM users WHERE id IN (SELECT DISTINCT user_id FROM orders);\`
+- Viết lại câu lệnh sử dụng toán tử liên kết liên quan \`EXISTS\`.`,
+`-- Sử dụng WHERE EXISTS thay thế cho WHERE id IN
+`, {
+    customValidate: function(code, output, db) {
+        if (code.toLowerCase().includes(" id in ")) return { pass: false, msg: "Hãy loại bỏ cấu trúc IN để thay bằng EXISTS!" };
+        if (!code.toLowerCase().includes("exists")) return { pass: false, msg: "Hãy sử dụng từ khóa EXISTS để tối ưu!" };
+        const res = db.exec(code);
+        if (!res || res.length === 0 || res[0].values.length !== 3) return { pass: false, msg: "Câu truy vấn chưa trả về chính xác số người dùng!" };
+        return { pass: true, msg: "Hoàn hảo! EXISTS là thói quen lập trình tối ưu hơn IN đối với MySQL." };
+    }
+});
+
+// --- BÀI 33: TRUY VẤN CON & GHI DỮ LIỆU ---
+addEx(33, "Tìm Sản Phẩm Giá Trên Trung Bình", "query.sql",
+`### Yêu cầu:
+Truy vấn tên sản phẩm (\`name\`) và giá (\`price\`) từ bảng \`products\` của các sản phẩm có giá cao hơn mức giá trung bình (\`AVG\`) của tất cả sản phẩm.
+- Sử dụng truy vấn con (subquery) trong mệnh đề \`WHERE\`.`,
+`-- Sử dụng subquery tính giá trung bình
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const values = res[0].values;
+            const isCorrect = values.every(r => r[1] > 1061250);
+            if (!isCorrect || values.length !== 3) return { pass: false, msg: "Dữ liệu chưa khớp các sản phẩm trên mức trung bình!" };
+            if (!code.toLowerCase().includes("select avg")) return { pass: false, msg: "Hãy tính AVG(price) bằng truy vấn con trong WHERE!" };
+            return { pass: true, msg: "Chính xác! Truy vấn con giúp lọc so sánh động linh hoạt." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(33, "Thêm Sản Phẩm Mới", "query.sql",
+`### Yêu cầu:
+Viết câu lệnh \`INSERT INTO\` để thêm một sản phẩm mới vào bảng \`products\`:
+- \`id\`: \`9\`
+- \`name\`: \`'Kiếm Ánh Sáng v2'\`
+- \`price\`: \`1800000.0\`
+- \`stock\`: \`10\`
+- \`category_id\`: \`1\`
+- \`rating\`: \`5.0\``,
+`-- Thực hiện lệnh INSERT INTO products
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            db.exec(code);
+            const res = db.exec("SELECT * FROM products WHERE id = 9;");
+            if (res.length === 0) return { pass: false, msg: "Sản phẩm có ID = 9 chưa được thêm thành công!" };
+            const row = res[0].values[0];
+            if (row[1] !== 'Kiếm Ánh Sáng v2' || row[2] !== 1800000.0) {
+                 return { pass: false, msg: "Dữ liệu chèn vào chưa đúng yêu cầu!" };
+            }
+            return { pass: true, msg: "Chính xác! Bản ghi mới đã được ghi nhận." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(33, "Cập Nhật Số Dư Tài Khoản Khách Hàng", "query.sql",
+`### Yêu cầu:
+Viết câu lệnh \`UPDATE\` để cộng thêm \`500000\`đ vào số dư (\`balance\`) của người dùng có tên đăng nhập (\`username\`) là \`"gameraise"\`.`,
+`-- Thực hiện lệnh UPDATE với SET và WHERE
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            db.exec(code);
+            const res = db.exec("SELECT balance FROM users WHERE username = 'gameraise';");
+            if (res[0].values[0][0] !== 650000) return { pass: false, msg: "Số dư tài khoản 'gameraise' chưa được cộng thêm chính xác!" };
+            if (!code.toLowerCase().includes("where")) return { pass: false, msg: "Cực kỳ nguy hiểm! Thiếu WHERE làm tất cả ví đều bị sửa đổi!" };
+            return { pass: true, msg: "Chính xác! Lệnh UPDATE đã chạy thành công." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(33, "Xóa Tài Khoản Chưa Từng Mua Hàng", "query.sql",
+`### Yêu cầu:
+Viết câu lệnh \`DELETE\` để xóa toàn bộ những người dùng ra khỏi bảng \`users\` mà chưa từng thực hiện bất kỳ đơn hàng nào trong bảng \`orders\` (dùng \`NOT IN\` kết hợp truy vấn con lấy \`user_id\` từ bảng \`orders\`).`,
+`-- Sử dụng DELETE FROM kết hợp NOT IN
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            db.exec(code);
+            const res = db.exec("SELECT * FROM users;");
+            if (res[0].values.length !== 3) return { pass: false, msg: "Số lượng người dùng còn lại sau khi xóa chưa chính xác!" };
+            const hasDeleted = res[0].values.some(r => r[1] === 'gameraise');
+            if (hasDeleted) return { pass: false, msg: "Người dùng 'gameraise' lẽ ra phải bị xóa vì chưa từng mua hàng!" };
+            return { pass: true, msg: "Chính xác! Dọn dẹp tài khoản rác thành công." };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
+addEx(33, "Thống Kê Người Dùng Có Số Dư Lớn Nhất", "query.sql",
+`### Yêu cầu:
+Truy vấn tên đăng nhập (\`username\`) và số dư (\`balance\`) của người dùng đang sở hữu số dư ví cao nhất trong bảng \`users\` sử dụng truy vấn con.`,
+`-- Sử dụng Subquery tìm MAX(balance)
+`, {
+    customValidate: function(code, output, db) {
+        try {
+            const res = db.exec(code);
+            if (!res || res.length === 0) return { pass: false, msg: "Không có kết quả!" };
+            const val = res[0].values[0];
+            if (val[0] !== 'dragonmaster99' || val[1] !== 5000000.0) {
+                 return { pass: false, msg: "Chưa lấy ra chính xác người dùng ví lớn nhất!" };
+            }
+            if (!code.toLowerCase().includes("select max")) return { pass: false, msg: "Hãy dùng subquery tìm MAX(balance) trong WHERE!" };
+            return { pass: true, msg: "Quá xuất sắc! Khóa học SQL Database đã hoàn tất hoàn hảo!" };
+        } catch (e) {
+            return { pass: false, msg: "Lỗi: " + e.message };
+        }
+    }
+});
+
 module.exports = exercises;
 

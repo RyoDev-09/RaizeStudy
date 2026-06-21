@@ -33,7 +33,18 @@ const lessonConfigs = [
   { id: 24, dir: 'phase4-advanced/bai-24-build-tools', title: 'Build Tools: Maven & Gradle', phase: 'Phase 4: Java Advanced', time: '3 giờ', difficulty: 'Trung bình' },
   { id: 25, dir: 'phase5-modern-ecosystem/bai-25-modern-java', title: 'Modern Java (Records, Sealed, Switch)', phase: 'Phase 5: Ecosystem & Modern', time: '4 giờ', difficulty: 'Trung bình' },
   { id: 26, dir: 'phase5-modern-ecosystem/bai-26-database-jdbc-jpa', title: 'Database: JDBC, Hibernate & JPA', phase: 'Phase 5: Ecosystem & Modern', time: '5 giờ', difficulty: 'Khó' },
-  { id: 27, dir: 'phase5-modern-ecosystem/bai-27-spring-boot', title: 'Spring Boot Framework', phase: 'Phase 5: Ecosystem & Modern', time: '8 giờ', difficulty: 'Khó' }
+  { id: 27, dir: 'phase5-modern-ecosystem/bai-27-spring-boot', title: 'Spring Boot Framework', phase: 'Phase 5: Ecosystem & Modern', time: '8 giờ', difficulty: 'Khó' },
+  { id: 28, dir: 'phase5-modern-ecosystem/bai-28-spring-mvc', title: 'Spring Web MVC & REST APIs', phase: 'Phase 5: Ecosystem & Modern', time: '4 giờ', difficulty: 'Trung bình' },
+  { id: 29, dir: 'phase5-modern-ecosystem/bai-29-spring-data-jpa', title: 'Spring Data JPA & Hibernate', phase: 'Phase 5: Ecosystem & Modern', time: '4 giờ', difficulty: 'Trung bình' },
+  { id: 30, dir: 'phase5-modern-ecosystem/bai-30-spring-security', title: 'Spring Security & JWT', phase: 'Phase 5: Ecosystem & Modern', time: '5 giờ', difficulty: 'Khó' },
+  { id: 31, dir: 'phase5-modern-ecosystem/bai-31-microservices', title: 'Microservices & Spring Cloud', phase: 'Phase 5: Ecosystem & Modern', time: '6 giờ', difficulty: 'Khó' },
+  { id: 32, dir: 'phase5-modern-ecosystem/bai-32-docker-devops', title: 'Docker & DevOps cho Java', phase: 'Phase 5: Ecosystem & Modern', time: '4 giờ', difficulty: 'Trung bình' },
+  { id: 33, dir: 'phase6-sql-database/bai-28-sql-co-ban', title: 'MySQL Cơ Bản & SELECT', phase: 'Phase 6: SQL Database', time: '2 giờ', difficulty: 'Dễ' },
+  { id: 34, dir: 'phase6-sql-database/bai-29-where-filtering', title: 'Lọc Dữ Liệu Với WHERE & Hàm Tiện Ích', phase: 'Phase 6: SQL Database', time: '2 giờ', difficulty: 'Dễ' },
+  { id: 35, dir: 'phase6-sql-database/bai-30-order-limit-group', title: 'Sắp Xếp & Gom Nhóm (ORDER BY, GROUP BY, HAVING)', phase: 'Phase 6: SQL Database', time: '2.5 giờ', difficulty: 'Trung bình' },
+  { id: 36, dir: 'phase6-sql-database/bai-31-joins', title: 'Liên Kết Bảng (JOINs)', phase: 'Phase 6: SQL Database', time: '3 giờ', difficulty: 'Trung bình' },
+  { id: 37, dir: 'phase6-sql-database/bai-32-optimization', title: 'MySQL Advanced: Chỉ Mục & Tối Ưu Truy Vấn', phase: 'Phase 6: SQL Database', time: '3.5 giờ', difficulty: 'Khó' },
+  { id: 38, dir: 'phase6-sql-database/bai-33-subquery-write', title: 'Truy Vấn Con & Ghi Dữ Liệu', phase: 'Phase 6: SQL Database', time: '3 giờ', difficulty: 'Khó' }
 ];
 
 // Kho câu hỏi trắc nghiệm chất lượng cao - 10-15 câu mỗi bài cho cả 27 bài học
@@ -410,6 +421,87 @@ const quizDatabase = {
     { q: "Embedded server trong Spring Boot mặc định là gì?", options: ["JBoss", "Tomcat (tích hợp sẵn trong spring-boot-starter-web)", "Nginx", "Apache"], answer: 1, explanation: "Spring Boot nhúng Tomcat vào JAR. Chạy ứng dụng bằng `java -jar app.jar` mà không cần cài Tomcat riêng." },
     { q: "spring-boot-starter-data-jpa thường dùng kèm với gì?", options: ["spring-boot-starter-security", "spring-boot-starter-web", "Một JDBC driver (MySQL, PostgreSQL...) và cấu hình datasource trong application.properties", "spring-boot-starter-test"], answer: 2, explanation: "JPA cần: spring-boot-starter-data-jpa (Hibernate + Spring Data) + JDBC driver (mysql-connector-java) + DB config trong properties." },
     { q: "Cách expose REST API endpoint trả về List<User> tại /api/users trong Spring Boot?", options: ["@GetMapping(\"/api/users\") trong @Controller", "@GetMapping(\"/api/users\") trong @RestController trả về List<User>", "@RequestMapping trong @Service", "@Repository method tên /api/users"], answer: 1, explanation: "`@RestController` + `@GetMapping(\"/api/users\") public List<User> getUsers() { ... }`. Spring tự serialize thành JSON array." }
+  ],
+
+  28: [
+    { q: "Annotation nào dùng để đánh dấu một lớp là REST API controller trong Spring Boot?", options: ["@Controller", "@RestController", "@Service", "@Repository"], answer: 1, explanation: "@RestController là sự kết hợp của @Controller và @ResponseBody, tự động chuyển dữ liệu trả về sang JSON." },
+    { q: "Phương thức HTTP nào được khuyến nghị để lấy thông tin chi tiết của một tài nguyên?", options: ["POST", "PUT", "GET", "DELETE"], answer: 2, explanation: "HTTP GET được dùng để truy vấn/lấy thông tin tài nguyên từ server mà không làm thay đổi trạng thái của nó." },
+    { q: "Để lấy giá trị động từ URL dạng /api/v1/products/{id}, ta sử dụng annotation nào?", options: ["@RequestParam", "@PathVariable", "@RequestBody", "@ModelAttribute"], answer: 1, explanation: "@PathVariable giúp ánh xạ tham số động trên URL path vào biến Java trong phương thức xử lý." },
+    { q: "Lớp nào trong Spring MVC đại diện cho cả nội dung phản hồi, tiêu đề (headers) và mã trạng thái HTTP?", options: ["HttpEntity", "ResponseEntity", "ResponseBody", "ModelAndView"], answer: 1, explanation: "ResponseEntity<T> cho phép kiểm soát hoàn toàn HTTP Response trả về cho client bao gồm headers, body và status code." }
+  ],
+
+  29: [
+    { q: "JPA (Java Persistence API) đóng vai trò gì trong thế giới Java?", options: ["Là một CSDL quan hệ.", "Là một đặc tả tiêu chuẩn (Specification/Interface) định nghĩa cách thức ORM hoạt động.", "Là một thư viện kết nối mạng.", "Là một web server."], answer: 1, explanation: "JPA chỉ là một chuẩn đặc tả (bộ interface). Hibernate là framework triển khai thực tế (implementation) phổ biến nhất của JPA." },
+    { q: "Annotation nào dùng để đánh dấu một class Java là một thực thể được ánh xạ vào bảng CSDL?", options: ["@Table", "@Entity", "@Id", "@Column"], answer: 1, explanation: "@Entity là annotation bắt buộc của JPA để đánh dấu class ánh xạ trực tiếp xuống cơ sở dữ liệu." },
+    { q: "Để tạo một Repository tự động hóa các câu lệnh CRUD với Spring Data JPA, interface của bạn cần extends từ interface nào?", options: ["CrudRepository", "JpaRepository", "PagingAndSortingRepository", "Cả A và B đều đúng"], answer: 3, explanation: "Spring Data JPA cung cấp JpaRepository (kế thừa từ PagingAndSortingRepository và CrudRepository) chứa đầy đủ các tính năng CRUD nâng cao." },
+    { q: "Spring Data JPA tự động sinh query SQL như thế nào từ tên phương thức `findByPriceGreaterThan(Double price)`?", options: ["Nó không tự sinh mà bắt buộc viết SQL.", "Nó phân tích cú pháp tên phương thức và dịch sang câu lệnh SQL SELECT ... WHERE price > ? tương ứng.", "Nó sử dụng Hibernate Cache.", "Nó biên dịch sang mã máy."], answer: 1, explanation: "Spring Data JPA hỗ trợ Query Creation, tự phân tích tên phương thức theo quy ước chuẩn và dịch sang SQL tự động." }
+  ],
+
+  30: [
+    { q: "Sự khác biệt cơ bản giữa Authentication và Authorization là gì?", options: ["Authentication là phân quyền, Authorization là xác thực.", "Authentication xác minh danh tính (Bạn là ai?), Authorization xác định quyền hạn (Bạn được làm gì?).", "Chúng hoàn toàn giống nhau.", "Authentication chạy ở client, Authorization chạy ở server."], answer: 1, explanation: "Authentication (Xác thực) kiểm tra tên đăng nhập/mật khẩu. Authorization (Phân quyền) kiểm tra Role/Quyền hạn của user." },
+    { q: "Trong cơ chế Stateless Authentication, máy chủ quản lý trạng thái đăng nhập của người dùng như thế nào?", options: ["Lưu session trong RAM server.", "Không lưu trạng thái session, client gửi kèm JWT Token hợp lệ trong mỗi request để server xác thực.", "Lưu cookie ở trình duyệt client.", "Sử dụng HttpSession mặc định."], answer: 1, explanation: "Stateless Auth không lưu session trên server. Client tự lưu trữ JWT Token và gửi kèm trong HTTP Header của mỗi request." },
+    { q: "JWT Token gồm có bao nhiêu phần chính được ngăn cách bởi dấu chấm?", options: ["2 phần", "3 phần (Header, Payload, Signature)", "4 phần", "1 phần duy nhất"], answer: 1, explanation: "JWT có 3 phần: Header (metadata), Payload (dữ liệu/claims) và Signature (chữ ký số dùng để kiểm tra tính toàn vẹn)." },
+    { q: "Lớp PasswordEncoder của Spring Security mặc định sử dụng thuật toán băm nào?", options: ["MD5", "SHA-256", "BCrypt", "AES"], answer: 2, explanation: "BCrypt là thuật toán băm mật khẩu một chiều mạnh mẽ, có cơ chế muối (salt) ngẫu nhiên chống tấn công Rainbow Table." }
+  ],
+
+  31: [
+    { q: "Khuyết điểm lớn nhất của kiến trúc Monolithic khi hệ thống phát triển cực lớn là gì?", options: ["Dễ phát triển ở giai đoạn đầu.", "Khó mở rộng độc lập từng phần tải cao, một module lỗi có thể làm sập toàn bộ hệ thống.", "Quá nhẹ và chạy nhanh.", "Không thể lưu trữ CSDL quan hệ."], answer: 1, explanation: "Monolith chạy chung một tiến trình, nên nếu một phần bị quá tải hoặc lỗi (ví dụ rò rỉ bộ nhớ), nó sẽ kéo sập toàn bộ hệ thống." },
+    { q: "Thành phần Eureka Server trong Spring Cloud Microservices đóng vai trò gì?", options: ["Làm API Gateway.", "Làm Service Registry - danh bạ lưu trữ IP/Port động của các microservice.", "Làm Config Server.", "Lưu trữ database tập trung."], answer: 1, explanation: "Eureka Server là Service Registry giúp các microservices đăng ký thông tin IP/Port động và tìm thấy nhau tự động." },
+    { q: "API Gateway trong Microservices đóng vai trò gì?", options: ["Là cổng vào duy nhất, chịu trách nhiệm định tuyến, xác thực tập trung và cân bằng tải.", "Là máy chủ lưu trữ file ảnh.", "Là hệ thống message queue.", "Là trình duyệt client."], answer: 0, explanation: "API Gateway hoạt động như cửa ngõ đón nhận mọi request từ client, lọc xác thực và chuyển tiếp đến đúng microservice đích ở mạng nội bộ." }
+  ],
+
+  32: [
+    { q: "Điểm khác biệt giúp Docker Container nhẹ và chạy nhanh hơn máy ảo (Virtual Machine) truyền thống là gì?", options: ["Container sử dụng hệ điều hành khách đầy đủ.", "Container chia sẻ chung Nhân hệ điều hành (Kernel) của máy chủ vật lý, chỉ cô lập tài nguyên phần mềm.", "Container chạy trực tiếp trên CPU Intel.", "Container không cần RAM."], answer: 1, explanation: "Container không cần cài đặt một hệ điều hành khách (Guest OS) riêng biệt như VM, mà chia sẻ chung Kernel máy chủ nên cực kỳ nhẹ và nhanh." },
+    { q: "Chỉ thị nào trong Dockerfile dùng để thiết lập lệnh chạy mặc định khi container khởi động?", options: ["RUN", "COPY", "ENTRYPOINT hoặc CMD", "ENV"], answer: 2, explanation: "ENTRYPOINT hoặc CMD định nghĩa lệnh mặc định được chạy khi container start. RUN dùng để chạy lệnh build khi tạo image." },
+    { q: "Tệp docker-compose.yml dùng để làm gì?", options: ["Định nghĩa cấu hình một Dockerfile.", "Định nghĩa và chạy đồng thời nhiều container liên kết với nhau (ví dụ App + MySQL CSDL).", "Biên dịch code Java.", "Cài đặt Docker Desktop."], answer: 1, explanation: "Docker Compose dùng cấu hình YAML để quản lý đa container, thiết lập mối quan hệ phụ thuộc và mạng chia sẻ giữa chúng dễ dàng." }
+  ],
+
+  33: [
+    { q: "Mệnh đề nào dùng để chỉ định các cột muốn lấy dữ liệu trong SQL?", options: ["FROM", "WHERE", "SELECT", "DISPLAY"], answer: 2, explanation: "Mệnh đề `SELECT` chỉ định các cột/trường thông tin muốn hiển thị trong tập kết quả." },
+    { q: "Để tránh lãng phí tài nguyên mạng và bộ nhớ đệm trong production, thói quen nào nên tránh?", options: ["Chỉ định rõ tên cột cần lấy", "Sử dụng SELECT * để lấy toàn bộ các cột", "Sử dụng LIMIT để giới hạn số dòng", "Sử dụng bí danh AS cho các cột"], answer: 1, explanation: "Sử dụng `SELECT *` bắt buộc MySQL quét và gửi toàn bộ các cột, gây hao phí I/O ổ đĩa, bộ nhớ đệm Buffer Pool và băng thông mạng." },
+    { q: "Từ khóa nào trong MySQL dùng để đặt tên hiển thị thay thế (bí danh) cho cột?", options: ["LIKE", "IN", "AS", "SET"], answer: 2, explanation: "Từ khóa `AS` dùng để gán biệt danh (Alias) cho cột hoặc bảng trong SQL." },
+    { q: "Mệnh đề nào trong MySQL dùng để loại bỏ các kết quả trùng lặp trong danh sách cột hiển thị?", options: ["UNIQUE", "DISTINCT", "GROUP BY", "FILTER"], answer: 1, explanation: "`DISTINCT` đứng ngay sau SELECT giúp loại bỏ mọi dòng dữ liệu trùng lặp trong tập kết quả hiển thị." },
+    { q: "Lệnh `LIMIT 5, 10` trong MySQL hoạt động thế nào?", options: ["Lấy 5 dòng đầu tiên và lọc 10 dòng sau", "Bỏ qua 5 dòng đầu tiên, và lấy 10 dòng tiếp theo", "Lấy từ dòng số 5 đến dòng số 10", "Chỉ lấy các dòng chia hết cho 5 hoặc 10"], answer: 1, explanation: "Cú pháp `LIMIT offset, row_count` của MySQL bỏ qua `offset` dòng đầu tiên và lấy ra tối đa `row_count` dòng tiếp theo." }
+  ],
+
+  34: [
+    { q: "Mệnh đề nào trong SQL dùng để lọc các dòng dữ liệu thỏa mãn một điều kiện cụ thể?", options: ["HAVING", "GROUP BY", "WHERE", "SELECT"], answer: 2, explanation: "Mệnh đề `WHERE` dùng để lọc các dòng dữ liệu đơn lẻ từ bảng nguồn trước khi xử lý gom nhóm hoặc chọn cột." },
+    { q: "Ký tự đại diện `%` trong toán tử `LIKE` có ý nghĩa gì?", options: ["Đại diện cho đúng 1 ký tự bất kỳ", "Đại diện cho một chữ số", "Đại diện cho một chuỗi ký tự bất kỳ (gồm cả chuỗi rỗng)", "Phép chia lấy phần dư"], answer: 2, explanation: "Trong mệnh đề `LIKE`, `%` là wildcard đại diện cho 0, 1 hoặc nhiều ký tự bất kỳ. Ký tự `_` đại diện cho đúng 1 ký tự." },
+    { q: "Giá trị NULL trong cơ sở dữ liệu thể hiện điều gì?", options: ["Số 0", "Chuỗi rỗng ''", "Giá trị bị thiếu hoặc chưa xác định", "Giá trị boolean false"], answer: 2, explanation: "`NULL` đại diện cho một trạng thái dữ liệu trống, chưa biết hoặc chưa được gán giá trị. Nó hoàn toàn khác số 0 hay chuỗi rỗng." },
+    { q: "Phép so sánh nào đúng để kiểm tra xem một cột có bị NULL hay không?", options: ["col = NULL", "col != NULL", "col IS NULL", "col IS NOT NULL (chỉ dùng cho khác NULL)"], answer: 2, explanation: "Không được dùng các toán tử so sánh thông thường (`=`, `!=`) với NULL. Phải dùng toán tử `IS NULL` hoặc `IS NOT NULL`." },
+    { q: "Hàm nào của MySQL dùng để trả về giá trị thay thế mặc định nếu cột đầu vào bị NULL?", options: ["COALESCE", "IFNULL", "NVL", "Cả A và B đều đúng"], answer: 3, explanation: "MySQL cung cấp cả `IFNULL(val, default)` và `COALESCE(val1, val2, ...)` để xử lý thay thế giá trị mặc định khi dữ liệu bị NULL." }
+  ],
+
+  35: [
+    { q: "Để sắp xếp kết quả truy vấn theo giá giảm dần, sử dụng mệnh đề nào?", options: ["ORDER BY price ASC", "SORT BY price DESC", "ORDER BY price DESC", "GROUP BY price DESC"], answer: 2, explanation: "Dùng `ORDER BY` kèm từ khóa `DESC` để sắp xếp dữ liệu theo thứ tự giảm dần." },
+    { q: "Hàm gộp nào dùng để tính giá trị trung bình cộng của một cột kiểu số?", options: ["COUNT", "SUM", "AVG", "MEAN"], answer: 2, explanation: "`AVG()` (Average) là hàm gộp tính trung bình cộng các giá trị kiểu số trong cột." },
+    { q: "Sự khác biệt quan trọng nhất giữa WHERE và HAVING là gì?", options: ["WHERE chạy chậm hơn HAVING", "WHERE lọc các dòng đơn lẻ trước khi gom nhóm, HAVING lọc các nhóm sau khi gom nhóm", "WHERE chỉ cho số, HAVING dùng cho chuỗi", "HAVING bắt buộc dùng kèm SELECT"], answer: 1, explanation: "`WHERE` lọc dữ liệu ở mức dòng thô từ bảng nguồn; `HAVING` lọc ở mức nhóm đã tính toán hàm gộp sau khi `GROUP BY` hoàn thành." },
+    { q: "Thứ tự thực thi logic nào sau đây là chính xác đối với MySQL Engine?", options: ["SELECT -> FROM -> WHERE -> ORDER BY", "FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY -> LIMIT", "FROM -> SELECT -> WHERE -> HAVING", "WHERE -> FROM -> GROUP BY -> SELECT"], answer: 1, explanation: "MySQL Engine luôn chạy theo thứ tự: xác định bảng nguồn (`FROM/JOIN`), lọc dòng (`WHERE`), gom nhóm (`GROUP BY`), lọc nhóm (`HAVING`), chọn cột hiển thị (`SELECT/DISTINCT`), sắp xếp (`ORDER BY`), giới hạn dòng (`LIMIT`)." },
+    { q: "Hàm `COUNT(*)` trong MySQL thực hiện điều gì?", options: ["Chỉ đếm các dòng chứa giá trị phi-NULL", "Đếm tổng số dòng trong bảng (bao gồm cả dòng chứa giá trị NULL)", "Đếm các dòng không trùng lặp", "Tính tổng các số nguyên"], answer: 1, explanation: "`COUNT(*)` đếm tất cả các dòng dữ liệu khớp điều kiện trong bảng bất kể dòng đó có chứa cột bị NULL hay không." }
+  ],
+
+  36: [
+    { q: "Khóa ngoại (Foreign Key) dùng để làm gì trong RDBMS?", options: ["Đảm bảo giá trị cột là duy nhất và không NULL", "Tạo liên kết logic giữa hai bảng bằng cách trỏ tới khóa chính của bảng khác", "Tăng tốc độ truy vấn SELECT", "Mã hóa mật khẩu người dùng"], answer: 1, explanation: "Khóa ngoại tạo ràng buộc toàn vẹn tham chiếu, liên kết một cột trong bảng này tới khóa chính của bảng khác." },
+    { q: "Liên kết INNER JOIN trả về kết quả nào?", options: ["Tất cả các dòng của cả hai bảng", "Chỉ các dòng thỏa mãn điều kiện khớp ở cả hai bảng liên kết", "Mọi dòng bảng trái và điền NULL bảng phải", "Mọi dòng bảng phải và điền NULL bảng trái"], answer: 1, explanation: "`INNER JOIN` (hoặc JOIN) thực hiện phép giao, chỉ giữ lại các bản ghi có giá trị liên kết khớp ở cả hai bảng." },
+    { q: "Trong MySQL, để thực hiện tương đương FULL OUTER JOIN chúng ta phải làm thế nào?", options: ["Sử dụng từ khóa FULL JOIN trực tiếp", "Sử dụng INNER JOIN với điều kiện đặc biệt", "Kết hợp kết quả của LEFT JOIN và RIGHT JOIN thông qua từ khóa UNION", "Sử dụng CROSS JOIN"], answer: 2, explanation: "MySQL không hỗ trợ FULL JOIN. Ta phải chạy một câu lệnh LEFT JOIN, một câu lệnh RIGHT JOIN và ghép chúng lại bằng `UNION` để loại bỏ trùng lặp." },
+    { q: "LEFT JOIN trả về kết quả thế nào nếu một dòng của bảng bên trái không có dòng khớp ở bảng bên phải?", options: ["Dòng đó bị loại bỏ khỏi kết quả", "Trả về dòng đó và điền NULL cho tất cả các cột của bảng bên phải", "Báo lỗi truy vấn", "Chương trình dừng chạy"], answer: 1, explanation: "`LEFT JOIN` đảm bảo giữ lại toàn bộ các dòng của bảng bên trái. Nếu bảng phải không khớp, các cột bảng phải sẽ hiển thị NULL." },
+    { q: "Có thể liên kết bao nhiêu bảng cùng lúc bằng toán tử JOIN trong một câu lệnh SELECT?", options: ["Tối đa 2 bảng", "Tối đa 3 bảng", "Không giới hạn số lượng bảng (phụ thuộc vào bộ nhớ của máy chủ)", "Tối đa 10 bảng"], answer: 2, explanation: "Không có giới hạn cứng về số lượng bảng có thể JOIN trong một truy vấn, chỉ phụ thuộc vào tài nguyên hệ thống và tối ưu hóa tối đa của MySQL." }
+  ],
+
+  37: [
+    { q: "Chỉ mục (Index) trong MySQL hoạt động dựa trên cấu trúc dữ liệu nào mặc định trong bộ máy InnoDB?", options: ["Hash Table", "B-Tree", "Binary Search Tree", "Linked List"], answer: 1, explanation: "Bộ máy InnoDB mặc định sử dụng chỉ mục dạng **B-Tree** (chính xác hơn là B+Tree) để lưu trữ giá trị, tối ưu hóa các phép tìm kiếm chính xác và theo khoảng." },
+    { q: "Một bảng trong MySQL có thể chứa tối đa bao nhiêu Clustered Index (chỉ mục cụm)?", options: ["Không giới hạn", "Tối đa 2 chỉ mục", "Duy nhất 1 chỉ mục (thường là Khóa chính)", "Tối đa 5 chỉ mục"], answer: 2, explanation: "Clustered Index sắp xếp vật lý dữ liệu trên ổ đĩa nên mỗi bảng chỉ có duy nhất 1 Clustered Index (Primary Key)." },
+    { q: "Khi sử dụng EXPLAIN, giá trị nào ở cột 'type' cảnh báo hiệu năng kém nhất cần được tối ưu?", options: ["ref", "range", "index", "ALL"], answer: 3, explanation: "`type = ALL` nghĩa là Full Table Scan (quét toàn bộ bảng từ đầu đến cuối), rất chậm khi bảng có lượng dữ liệu lớn." },
+    { q: "Tại sao không nên sử dụng hàm tính toán (ví dụ: YEAR(col)) trên cột có Index ở mệnh đề WHERE?", options: ["Nó làm lỗi cú pháp SQL", "Nó vô hiệu hóa chỉ mục và ép MySQL phải thực hiện quét toàn bộ bảng (Full Table Scan)", "Nó làm tăng kích thước ổ đĩa của database", "MySQL tự động làm tròn số"], answer: 1, explanation: "Khi bọc hàm quanh cột index, MySQL phải chạy hàm đó trên từng dòng để so sánh, làm mất tác dụng tìm kiếm nhanh của B-Tree index." },
+    { q: "Quy tắc 'Leftmost Prefix' của Composite Index trên (col1, col2) có ý nghĩa gì?", options: ["Chỉ mục chỉ hoạt động nếu ta lọc theo cột col2", "Chỉ mục chỉ hoạt động nếu ta lọc theo col1 hoặc cả col1 và col2", "Chỉ mục luôn hoạt động trong mọi trường hợp", "Cột col1 phải nằm bên trái cột col2 trong bảng"], answer: 1, explanation: "Composite Index yêu cầu điều kiện lọc phải đi từ trái qua phải của khai báo chỉ mục. Lọc theo col2 mà không lọc theo col1 sẽ không kích hoạt được index." }
+  ],
+
+  38: [
+    { q: "Lệnh nào trong SQL dùng để thêm mới dòng dữ liệu vào bảng?", options: ["INSERT INTO", "ADD RECORD", "UPDATE", "CREATE ROW"], answer: 0, explanation: "`INSERT INTO table_name (cols) VALUES (vals)` dùng để chèn bản ghi mới." },
+    { q: "Điều gì nguy hiểm nhất khi chạy lệnh UPDATE hoặc DELETE?", options: ["Lệnh chạy chậm", "Không chỉ định mệnh đề WHERE khiến toàn bộ bảng bị ghi đè hoặc xóa sạch dữ liệu", "Lỗi tràn bộ nhớ cache", "Làm thay đổi cấu trúc bảng"], answer: 1, explanation: "Nếu không có `WHERE`, lệnh `UPDATE/DELETE` sẽ áp dụng lên tất cả các dòng của bảng, hủy hoại dữ liệu hệ thống." },
+    { q: "Để tối ưu hiệu năng ghi khi cần chèn 1000 dòng dữ liệu mới, cách nào tốt nhất?", options: ["Chạy vòng lặp 1000 câu lệnh INSERT đơn lẻ trong Java", "Sử dụng Bulk Insert (1 câu lệnh INSERT chứa nhiều bộ VALUES phân cách bằng dấu phẩy)", "Chạy lệnh INSERT và khởi động lại database", "Không có cách nào khác nhau"], answer: 1, explanation: "Bulk Insert giảm thiểu số gói tin truyền tải trên mạng và giảm thiểu số lần commit I/O vật lý xuống ổ đĩa, nhanh hơn gấp hàng chục lần." },
+    { q: "Tính năng Transaction trong database đảm bảo an toàn dữ liệu theo nguyên tắc nào?", options: ["Nguyên tắc REST", "Nguyên tắc ACID (Atomicity, Consistency, Isolation, Durability)", "Nguyên tắc SOLID", "Nguyên tắc DRY"], answer: 1, explanation: "Transactions đảm bảo an toàn dữ liệu theo các thuộc tính ACID: Nguyên tố, Nhất quán, Cô lập, Bền vững." },
+    { q: "Trong một Transaction, lệnh ROLLBACK thực hiện điều gì?", options: ["Xác nhận lưu vĩnh viễn các thay đổi dữ liệu", "Hủy bỏ tất cả các thay đổi tạm thời trong transaction hiện tại, khôi phục dữ liệu về trạng thái ban đầu", "Khởi động lại database server", "Sao lưu dữ liệu ra file SQL"], answer: 1, explanation: "`ROLLBACK` hủy bỏ tất cả thay đổi tạm thời chưa commit, đưa cơ sở dữ liệu về trạng thái an toàn trước khi transaction bắt đầu." }
   ]
 };
 
@@ -653,6 +745,211 @@ Xây dựng một lớp \`TaxCalculator\` chứa phương thức tự định ng
         return { pass: false, msg: "Giá trị tính toán trả về chưa đúng. 2,000,000 đ cộng thêm 15% phải là 2,300,000 đ." };
       }
       return { pass: true, msg: "Tuyệt cú mèo! Em đã biết cách khai báo và gọi phương thức tĩnh (static method) chuẩn chỉnh." };
+    }
+  },
+  28: {
+    fileName: 'ProductControllerSim.java',
+    instructions: `### Yêu cầu:
+Viết phương thức \`handleRequest(String method, String path, String body)\` trong lớp \`ProductControllerSim\` để mô phỏng một Controller REST API:
+- Nếu \`method\` là \`"GET"\` và \`path\` là \`"/api/v1/products"\` -> Trả về JSON: \`{"status": 200, "data": "Danh sách 100 sản phẩm"}\`.
+- Nếu \`method\` là \`"POST"\` và \`path\` là \`"/api/v1/products"\` -> Trích xuất dữ liệu từ \`body\` và trả về JSON: \`{"status": 201, "message": "Đã tạo sản phẩm: " + [tên sản phẩm]}\` (Ví dụ body là \`"Nhẫn Ma Thuật +5"\`).
+- Các trường hợp khác -> Trả về JSON: \`{"status": 404, "error": "Không tìm thấy đường dẫn"}\`.`,
+    starterCode: `public class ProductControllerSim {
+    public static void main(String[] args) {
+        System.out.println(handleRequest("GET", "/api/v1/products", ""));
+        System.out.println(handleRequest("POST", "/api/v1/products", "Nhẫn Ma Thuật +5"));
+        System.out.println(handleRequest("GET", "/api/v1/unknown", ""));
+    }
+
+    public static String handleRequest(String method, String path, String body) {
+        // TODO: Viết logic định tuyến tại đây và trả về chuỗi JSON chính xác
+        return "";
+    }
+}`,
+    validate: (code, output) => {
+      if (!code.includes("handleRequest")) {
+        return { pass: false, msg: "Lỗi: Không tìm thấy phương thức handleRequest!" };
+      }
+      if (!output.includes("Danh sách 100 sản phẩm")) {
+        return { pass: false, msg: "Lỗi: Chưa xử lý đúng yêu cầu GET /api/v1/products!" };
+      }
+      if (!output.includes("Đã tạo sản phẩm: Nhẫn Ma Thuật +5")) {
+        return { pass: false, msg: "Lỗi: Chưa xử lý đúng yêu cầu POST /api/v1/products hoặc trích xuất body!" };
+      }
+      if (!output.includes("Không tìm thấy đường dẫn")) {
+        return { pass: false, msg: "Lỗi: Chưa xử lý đúng trường hợp 404 không tìm thấy đường dẫn!" };
+      }
+      return { pass: true, msg: "Tuyệt vời! Phương thức Controller mô phỏng của em đã xử lý chính xác tất cả các HTTP methods và endpoints!" };
+    }
+  },
+  29: {
+    fileName: 'UserEntity.java',
+    instructions: `### Yêu cầu:
+Hoàn thiện lớp \`UserEntity\` mô phỏng một JPA Entity có kiểm tra ràng buộc dữ liệu:
+- Khai báo các trường private: \`id\` (Long), \`username\` (String), \`balance\` (Double).
+- Tạo constructor không tham số và constructor đầy đủ tham số.
+- Hoàn thành phương thức \`validate()\`:
+  - Nếu \`username\` bị null hoặc có độ dài nhỏ hơn 3 ký tự -> Ném ra ngoại lệ \`IllegalArgumentException\` với thông báo \`"Username không hợp lệ!"\`.
+  - Nếu \`balance\` nhỏ hơn 0 -> Ném ra ngoại lệ \`IllegalArgumentException\` với thông báo \`"Số dư tài khoản không được âm!"\`.`,
+    starterCode: `public class UserEntity {
+    private Long id;
+    private String username;
+    private Double balance;
+
+    public UserEntity() {}
+
+    public UserEntity(Long id, String username, Double balance) {
+        this.id = id;
+        this.username = username;
+        this.balance = balance;
+    }
+
+    public void validate() {
+        // TODO: Viết code kiểm tra ràng buộc tại đây
+    }
+
+    public static void main(String[] args) {
+        try {
+            UserEntity user1 = new UserEntity(1L, "rz", 100.0);
+            user1.validate();
+            System.out.println("User 1 OK");
+        } catch (Exception e) {
+            System.out.println("User 1: " + e.getMessage());
+        }
+
+        try {
+            UserEntity user2 = new UserEntity(2L, "raize", -50.0);
+            user2.validate();
+            System.out.println("User 2 OK");
+        } catch (Exception e) {
+            System.out.println("User 2: " + e.getMessage());
+        }
+    }
+}`,
+    validate: (code, output) => {
+      if (!code.includes("IllegalArgumentException")) {
+        return { pass: false, msg: "Lỗi: Bạn cần ném ra IllegalArgumentException khi dữ liệu không hợp lệ!" };
+      }
+      if (!output.includes("User 1: Username không hợp lệ!")) {
+        if (output.includes("User 1 OK")) {
+          return { pass: false, msg: "Lỗi: Username 'rz' ngắn hơn 3 ký tự nhưng phương thức validate() không ném lỗi!" };
+        }
+        return { pass: false, msg: "Lỗi: Output chưa hiển thị đúng thông báo lỗi cho User 1!" };
+      }
+      if (!output.includes("User 2: Số dư tài khoản không được âm!")) {
+        if (output.includes("User 2 OK")) {
+          return { pass: false, msg: "Lỗi: Số dư -50.0 là số âm nhưng phương thức validate() không ném lỗi!" };
+        }
+        return { pass: false, msg: "Lỗi: Output chưa hiển thị đúng thông báo lỗi cho User 2!" };
+      }
+      return { pass: true, msg: "Xuất sắc! Entity validate của em đã bắt chính xác các lỗi nghiệp vụ và ném ngoại lệ đúng quy chuẩn JPA!" };
+    }
+  },
+  30: {
+    fileName: 'JwtHeaderValidator.java',
+    instructions: `### Yêu cầu:
+Hoàn thiện phương thức \`extractToken(String authHeaderValue)\` trong lớp \`JwtHeaderValidator\` để giả lập quá trình phân tích JWT token từ HTTP Authorization Header:
+- Kiểm tra xem \`authHeaderValue\` có hợp lệ (không null, không rỗng, bắt đầu bằng \`"Bearer "\` và phần token phía sau không được trống hay không).
+- Nếu hợp lệ: Trích xuất và trả về chuỗi token thực sự phía sau chữ \`"Bearer "\`.
+- Nếu không hợp lệ: Ném ra ngoại lệ \`SecurityException\` với thông báo \`"Định dạng tiêu đề xác thực không hợp lệ!"\`.`,
+    starterCode: `public class JwtHeaderValidator {
+    public static void main(String[] args) {
+        try {
+            String header = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
+            String token = extractToken(header);
+            System.out.println("Token: " + token);
+            
+            extractToken("Basic YWRtaW46MTIzNDU2");
+        } catch (Exception e) {
+            System.out.println("Lỗi: " + e.getMessage());
+        }
+    }
+
+    public static String extractToken(String authHeaderValue) {
+        // TODO: Viết code trích xuất token tại đây
+        return "";
+    }
+}`,
+    validate: (code, output) => {
+      if (!code.includes("SecurityException")) {
+        return { pass: false, msg: "Lỗi: Bạn cần ném ra SecurityException khi header không hợp lệ!" };
+      }
+      if (!output.includes("Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9")) {
+        return { pass: false, msg: "Lỗi: Không trích xuất được token hợp lệ từ chuỗi Bearer!" };
+      }
+      if (!output.includes("Lỗi: Định dạng tiêu đề xác thực không hợp lệ!")) {
+        return { pass: false, msg: "Lỗi: Không chặn được header không bắt đầu bằng Bearer!" };
+      }
+      return { pass: true, msg: "Chúc mừng! Lớp xử lý bảo mật của em hoạt động cực kỳ chính xác và an toàn!" };
+    }
+  },
+  31: {
+    fileName: 'GatewayRouterSim.java',
+    instructions: `### Yêu cầu:
+Viết phương thức \`routeRequest(String path)\` trong lớp \`GatewayRouterSim\` để mô phỏng một API Gateway định tuyến đến các microservices:
+- Nếu path bắt đầu bằng \`"/api/v1/users"\` -> Trả về: \`"USER-SERVICE"\`.
+- Nếu path bắt đầu bằng \`"/api/v1/products"\` hoặc \`"/api/v1/items"\` -> Trả về: \`"PRODUCT-SERVICE"\`.
+- Nếu path bắt đầu bằng \`"/api/v1/orders"\` -> Trả về: \`"ORDER-SERVICE"\`.
+- Các trường hợp khác -> Trả về: \`"UNKNOWN-SERVICE"\`.`,
+    starterCode: `public class GatewayRouterSim {
+    public static void main(String[] args) {
+        System.out.println(routeRequest("/api/v1/users/profile"));
+        System.out.println(routeRequest("/api/v1/products/1001"));
+        System.out.println(routeRequest("/api/v1/orders/checkout"));
+        System.out.println(routeRequest("/api/v1/unknown"));
+    }
+
+    public static String routeRequest(String path) {
+        // TODO: Viết logic phân tích path và trả về tên Service chính xác tại đây
+        return "";
+    }
+}`,
+    validate: (code, output) => {
+      if (!code.includes("routeRequest")) {
+        return { pass: false, msg: "Lỗi: Không tìm thấy phương thức routeRequest!" };
+      }
+      if (!output.includes("USER-SERVICE") || !output.includes("PRODUCT-SERVICE") || !output.includes("ORDER-SERVICE")) {
+        return { pass: false, msg: "Lỗi: Chưa định tuyến đúng đến các microservices!" };
+      }
+      if (!output.includes("UNKNOWN-SERVICE")) {
+        return { pass: false, msg: "Lỗi: Chưa xử lý đúng trường hợp path không xác định!" };
+      }
+      return { pass: true, msg: "Rất xuất sắc! Gateway router của em đã phân luồng giao thông mạng hoàn toàn chuẩn xác!" };
+    }
+  },
+  32: {
+    fileName: 'EnvValidator.java',
+    instructions: `### Yêu cầu:
+Viết phương thức \`validateEnv(String dbHost, String dbPassword)\` trong lớp \`EnvValidator\` để mô phỏng việc kiểm tra tính đầy đủ của các biến cấu hình trước khi ứng dụng khởi chạy trong Container Docker:
+- Kiểm tra xem \`dbHost\` có bị null hoặc rỗng (chỉ chứa khoảng trắng) hay không. Nếu có, trả về: \`"LỖI: Thiếu biến môi trường DB_HOST!"\`.
+- Kiểm tra xem \`dbPassword\` có bị null hoặc rỗng (chỉ chứa khoảng trắng) hay không. Nếu có, trả về: \`"LỖI: Thiếu biến môi trường DB_PASSWORD!"\`.
+- Nếu đầy đủ: Trả về \`"OK: Môi trường cấu hình hợp lệ!"\`.`,
+    starterCode: `public class EnvValidator {
+    public static void main(String[] args) {
+        System.out.println(validateEnv("localhost", "123456"));
+        System.out.println(validateEnv(null, "123456"));
+        System.out.println(validateEnv("localhost", ""));
+    }
+
+    public static String validateEnv(String dbHost, String dbPassword) {
+        // TODO: Viết code kiểm tra và trả về thông báo tương ứng tại đây
+        return "";
+    }
+}`,
+    validate: (code, output) => {
+      if (!code.includes("validateEnv")) {
+        return { pass: false, msg: "Lỗi: Không tìm thấy phương thức validateEnv!" };
+      }
+      if (!output.includes("OK: Môi trường cấu hình hợp lệ!")) {
+        return { pass: false, msg: "Lỗi: Chưa xử lý đúng trường hợp cấu hình hợp lệ!" };
+      }
+      if (!output.includes("LỖI: Thiếu biến môi trường DB_HOST!")) {
+        return { pass: false, msg: "Lỗi: Chưa bắt được trường hợp thiếu DB_HOST!" };
+      }
+      if (!output.includes("LỖI: Thiếu biến môi trường DB_PASSWORD!")) {
+        return { pass: false, msg: "Lỗi: Chưa bắt được trường hợp thiếu DB_PASSWORD!" };
+      }
+      return { pass: true, msg: "Hoàn hảo! Docker container của em giờ đây đã được bảo vệ bởi bộ kiểm tra môi trường đáng tin cậy!" };
     }
   }
 };

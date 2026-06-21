@@ -23,18 +23,76 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <!-- Monaco Editor Loader -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
+    <!-- SQL.js WebAssembly -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 </head>
 <body>
+    <!-- Màn hình giới thiệu (Intro Landing Screen) -->
+    <div class="intro-container" id="intro-container" style="display: none;">
+        <div class="intro-content">
+            <div class="intro-logo">
+                <span class="intro-logo-icon">☕</span>
+                <div class="intro-logo-text">
+                    <span class="intro-logo-title">RaizeStudy</span>
+                    <span class="intro-logo-subtitle">Java Mentor Portal</span>
+                </div>
+            </div>
+            
+            <h1 class="intro-headline">Cổng Học Lập Trình Java & SQL Cao Cấp</h1>
+            <p class="intro-subheadline">
+                Trực quan hóa bộ nhớ Stack & Heap, thực hành viết code trực tuyến và củng cố kiến thức cùng Mentor ảo đồng hành.
+            </p>
+            
+            <button class="btn-intro-start" id="btn-intro-start">
+                <i data-lucide="graduation-cap"></i>
+                <span>Bắt Đầu Đăng Nhập Để Học</span>
+            </button>
+            
+            <div class="intro-features">
+                <div class="intro-feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i data-lucide="activity"></i>
+                    </div>
+                    <h3>Trực Quan Hóa Bộ Nhớ</h3>
+                    <p>Mô phỏng bộ nhớ Stack & Heap thay đổi trực quan sau mỗi câu lệnh, nắm vững bản chất tham chiếu.</p>
+                </div>
+                
+                <div class="intro-feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i data-lucide="code-2"></i>
+                    </div>
+                    <h3>IDE Thực Hành Trực Tuyến</h3>
+                    <p>Viết code Java, thực thi truy vấn SQL trực tiếp trong trình duyệt với bộ testcase chấm điểm tự động.</p>
+                </div>
+                
+                <div class="intro-feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i data-lucide="help-circle"></i>
+                    </div>
+                    <h3>Trắc Nghiệm & Bài Tập</h3>
+                    <p>Hệ thống hơn 135 bài tập khuyết và câu hỏi trắc nghiệm phản xạ giúp nhớ lâu kiến thức cốt lõi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="app-sidebar" id="app-sidebar">
             <div class="sidebar-header">
-                <div class="logo-area">
-                    <div class="logo-icon">☕</div>
+                <div class="logo-area" style="margin-bottom: 12px;">
+                    <div class="logo-icon" id="logo-icon">☕</div>
                     <div class="logo-text">
                         <span class="logo-title">RaizeStudy</span>
-                        <span class="logo-subtitle">Java Mentor Portal</span>
+                        <span class="logo-subtitle" id="logo-subtitle">Java Mentor Portal</span>
                     </div>
+                </div>
+                <!-- Course Selector -->
+                <div class="course-selector-wrapper" style="width: 100%; margin-top: 4px;">
+                    <select id="course-select" class="course-select-dropdown">
+                        <option value="java" selected>☕ Học Java Core</option>
+                        <option value="sql">🗄️ Học SQL Database</option>
+                    </select>
                 </div>
             </div>
 
@@ -48,7 +106,7 @@
                     <div class="progress-bar-fill" id="overall-progress-bar"></div>
                 </div>
                 <div class="progress-stats">
-                    <span id="completed-count">0</span> / <span id="total-count">27</span> bài học
+                    <span id="completed-count">0</span> / <span id="total-count">32</span> bài học
                 </div>
             </div>
 
@@ -261,7 +319,10 @@
                     <label for="login-password">Mật khẩu</label>
                     <div class="input-with-icon">
                         <i data-lucide="lock"></i>
-                        <input type="password" id="login-password" placeholder="Nhập mật khẩu" required autocomplete="current-password">
+                        <input type="password" id="login-password" class="password-input" placeholder="Nhập mật khẩu" required autocomplete="current-password">
+                        <button type="button" class="btn-toggle-password" tabindex="-1" aria-label="Hiện mật khẩu">
+                            <i data-lucide="eye"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="auth-error-msg" id="login-error-msg"></div>
@@ -284,14 +345,20 @@
                     <label for="register-password">Mật khẩu</label>
                     <div class="input-with-icon">
                         <i data-lucide="lock"></i>
-                        <input type="password" id="register-password" placeholder="Tạo mật khẩu an toàn" required autocomplete="new-password">
+                        <input type="password" id="register-password" class="password-input" placeholder="Tạo mật khẩu an toàn" required autocomplete="new-password">
+                        <button type="button" class="btn-toggle-password" tabindex="-1" aria-label="Hiện mật khẩu">
+                            <i data-lucide="eye"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="register-confirm-password">Xác nhận mật khẩu</label>
                     <div class="input-with-icon">
                         <i data-lucide="shield-check"></i>
-                        <input type="password" id="register-confirm-password" placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
+                        <input type="password" id="register-confirm-password" class="password-input" placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
+                        <button type="button" class="btn-toggle-password" tabindex="-1" aria-label="Hiện mật khẩu">
+                            <i data-lucide="eye"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="auth-error-msg" id="register-error-msg"></div>

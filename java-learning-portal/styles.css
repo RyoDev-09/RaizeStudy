@@ -1595,6 +1595,38 @@ body {
     color: var(--accent-purple);
 }
 
+/* Eye icon for password field show/hide toggle */
+.input-with-icon .btn-toggle-password {
+    position: absolute;
+    right: 14px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+    z-index: 10;
+}
+
+.input-with-icon .btn-toggle-password:hover {
+    color: #fff;
+}
+
+.input-with-icon .btn-toggle-password svg {
+    position: static;
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    color: inherit;
+}
+
+.input-with-icon input.password-input {
+    padding-right: 42px;
+}
+
 .auth-error-msg {
     color: var(--danger);
     font-size: 13px;
@@ -1721,3 +1753,337 @@ body {
     padding: 8px;
 }
 
+/* Course selector in sidebar */
+.course-selector-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.course-select-dropdown {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    outline: none;
+}
+
+.course-select-dropdown:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    background: rgba(15, 23, 42, 0.8);
+}
+
+.course-select-dropdown:focus {
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 2px var(--accent-purple-glow);
+}
+
+.course-select-dropdown option {
+    background-color: #0f172a;
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 8px;
+}
+
+/* Premium terminal table for SQL output */
+.terminal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: #e2e8f0;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.terminal-table th, .terminal-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+}
+
+.terminal-table th {
+    background-color: #0f172a;
+    color: var(--accent-cyan);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.terminal-table tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+.terminal-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* ==========================================================================
+   MÀN HÌNH GIỚI THIỆU (LANDING SCREEN) STYLES
+   ========================================================================== */
+
+.intro-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 45%),
+                var(--bg-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9990;
+    overflow-y: auto;
+    padding: 40px 24px;
+}
+
+.intro-content {
+    max-width: 960px;
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.intro-logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.intro-logo-icon {
+    font-size: 40px;
+    filter: drop-shadow(0 0 15px var(--accent-purple));
+    animation: coffee-float 3s ease-in-out infinite;
+}
+
+.intro-logo-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.intro-logo-title {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffffff 40%, var(--accent-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+}
+
+.intro-logo-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.intro-headline {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #ffffff 20%, #e2e8f0 50%, var(--accent-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+
+.intro-subheadline {
+    font-size: 17px;
+    color: var(--text-secondary);
+    max-width: 700px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+/* NÚT BẮT ĐẦU ĐĂNG NHẬP CUSTOM NỔI BẬT */
+.btn-intro-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, var(--accent-purple) 0%, #7c3aed 50%, var(--accent-cyan) 100%);
+    background-size: 200% auto;
+    border: none;
+    color: #ffffff;
+    padding: 18px 42px;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: 800;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    box-shadow: 0 0 20px var(--accent-purple-glow),
+                0 0 40px rgba(6, 182, 212, 0.15),
+                inset 0 -4px 0px rgba(0, 0, 0, 0.2);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: pulse-glow 3s infinite, gradient-shift 5s ease infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-intro-start::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    transition: 0.75s;
+}
+
+.btn-intro-start:hover::before {
+    left: 150%;
+    transition: 0.75s;
+}
+
+.btn-intro-start:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 0 35px rgba(139, 92, 246, 0.5),
+                0 0 60px rgba(6, 182, 212, 0.35),
+                inset 0 -2px 0px rgba(0, 0, 0, 0.2);
+    background-position: right center;
+}
+
+.btn-intro-start:active {
+    transform: scale(0.98) translateY(1px);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.4),
+                0 0 25px rgba(6, 182, 212, 0.2);
+}
+
+.btn-intro-start svg {
+    width: 22px;
+    height: 22px;
+    animation: cap-tilt 2.5s ease-in-out infinite;
+}
+
+/* KHU VỰC THẺ TÍNH NĂNG */
+.intro-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    width: 100%;
+    margin-top: 54px;
+}
+
+.intro-feature-card {
+    background: rgba(14, 19, 34, 0.6);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur));
+    border-radius: 20px;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: var(--transition-smooth);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.intro-feature-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(139, 92, 246, 0.3);
+    background: rgba(14, 19, 34, 0.85);
+    box-shadow: 0 15px 40px rgba(139, 92, 246, 0.1);
+}
+
+.feature-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+    border: 1.5px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: var(--accent-cyan);
+    transition: var(--transition-smooth);
+}
+
+.intro-feature-card:hover .feature-icon-wrapper {
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-cyan) 100%);
+    border-color: transparent;
+    box-shadow: 0 0 15px var(--accent-cyan-glow);
+    transform: rotate(5deg);
+}
+
+.feature-icon-wrapper svg {
+    width: 24px;
+    height: 24px;
+}
+
+.intro-feature-card h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+.intro-feature-card p {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+/* ANIMATIONS */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.3),
+                    0 0 40px rgba(6, 182, 212, 0.1),
+                    inset 0 -4px 0px rgba(0, 0, 0, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 35px rgba(139, 92, 246, 0.5),
+                    0 0 60px rgba(6, 182, 212, 0.25),
+                    inset 0 -4px 0px rgba(0, 0, 0, 0.2);
+    }
+}
+
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes cap-tilt {
+    0%, 100% { transform: rotate(0deg); }
+    33% { transform: rotate(-8deg) scale(1.05); }
+    66% { transform: rotate(8deg) scale(1.05); }
+}
+
+/* RESPONSIVE LANDING */
+@media (max-width: 1024px) {
+    .intro-features {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .intro-headline {
+        font-size: 34px;
+    }
+    .intro-container {
+        padding: 30px 16px;
+    }
+}

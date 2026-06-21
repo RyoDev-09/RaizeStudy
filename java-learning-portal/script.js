@@ -11,7 +11,8 @@ let state = {
     quizAnswersCount: 0,
     editor: null,
     userCodes: {}, // Code lưu theo exercise_id
-    token: localStorage.getItem('raize_java_token') || null
+    token: localStorage.getItem('raize_java_token') || null,
+    activeCourse: 'java' // 'java' hoặc 'sql'
 };
 
 // Cấu hình Marked.js
@@ -47,12 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Nạp tiến độ học tương ứng
                 if (state.token) {
                     await loadProgressFromDB();
+                    // Khởi chạy ứng dụng khi đã đăng nhập
+                    initApp();
                 } else {
                     loadProgressFallback();
                 }
-                
-                // Khởi chạy ứng dụng
-                initApp();
             })
             .catch(err => {
                 console.error("Lỗi khi fetch bài học:", err);
@@ -220,8 +220,11 @@ function saveCode(exerciseId, code) {
 // CẬP NHẬT GIAO DIỆN TIẾN ĐỘ
 function updateProgressUI() {
     try {
-        const total = state.lessons.length;
-        const completed = state.completedLessons.size;
+        const filteredLessons = state.lessons.filter(l => 
+            state.activeCourse === 'sql' ? l.id >= 33 : l.id < 33
+        );
+        const total = filteredLessons.length;
+        const completed = filteredLessons.filter(l => state.completedLessons.has(l.id)).length;
         const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
         
         document.getElementById('overall-progress-text').innerText = `${pct}%`;
@@ -236,6 +239,15 @@ function updateProgressUI() {
 // KHỞI ĐỘNG ỨNG DỤNG
 function initApp() {
     try {
+        // Đồng bộ hóa trạng thái Khóa học từ ID bài học hiện tại
+        state.activeCourse = state.currentLessonId >= 33 ? 'sql' : 'java';
+        
+        const courseSelect = document.getElementById('course-select');
+        if (courseSelect) {
+            courseSelect.value = state.activeCourse;
+            updateLogoAndSubtitle(state.activeCourse);
+        }
+
         // Render danh sách menu bài học ở sidebar
         renderSidebar();
         
@@ -252,10 +264,45 @@ function initApp() {
     }
 }
 
+// Cập nhật logo và tiêu đề phụ khóa học
+function updateLogoAndSubtitle(course) {
+    const logoIcon = document.getElementById('logo-icon');
+    const logoSubtitle = document.getElementById('logo-subtitle');
+    if (course === 'sql') {
+        if (logoIcon) logoIcon.innerText = '🗄️';
+        if (logoSubtitle) logoSubtitle.innerText = 'SQL Database Mentor';
+    } else {
+        if (logoIcon) logoIcon.innerText = '☕';
+        if (logoSubtitle) logoSubtitle.innerText = 'Java Mentor Portal';
+    }
+}
+
 // KHỞI TẠO MONACO EDITOR
 function initMonaco() {
+    if (state.editor) {
+        // Cập nhật lại code cho bài học mới/bài tập mới
+        const lesson = state.lessons.find(l => l.id === state.currentLessonId);
+        if (lesson && lesson.exercises && lesson.exercises.length > 0) {
+            let currentEx = lesson.exercises.find(e => e.id === state.currentExerciseId);
+            if (!currentEx) {
+                currentEx = lesson.exercises[0];
+                state.currentExerciseId = currentEx.id;
+            }
+            const savedCode = state.userCodes[state.currentExerciseId];
+            state.editor.setValue(savedCode || currentEx.starterCode || '');
+            document.getElementById('editor-filename').innerText = currentEx.fileName || 'Main.java';
+            
+            const ext = (currentEx.fileName || 'Main.java').split('.').pop();
+            const monacoLang = ext === 'sql' ? 'sql' : 'java';
+            monaco.editor.setModelLanguage(state.editor.getModel(), monacoLang);
+        }
+        setTimeout(() => state.editor.layout(), 100);
+        return;
+    }
+
     require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
     require(['vs/editor/editor.main'], function () {
+        if (state.editor) return; // Bảo vệ bất đồng bộ trong require
         state.editor = monaco.editor.create(document.getElementById('editor-container'), {
             value: '',
             language: 'java',
@@ -294,6 +341,10 @@ function initMonaco() {
             const savedCode = state.userCodes[state.currentExerciseId];
             state.editor.setValue(savedCode || currentEx.starterCode || '');
             document.getElementById('editor-filename').innerText = currentEx.fileName || 'Main.java';
+            
+            const ext = (currentEx.fileName || 'Main.java').split('.').pop();
+            const monacoLang = ext === 'sql' ? 'sql' : 'java';
+            monaco.editor.setModelLanguage(state.editor.getModel(), monacoLang);
         }
     });
 }
@@ -306,6 +357,13 @@ function renderSidebar() {
     // Gom nhóm bài học theo Phase
     const phases = {};
     state.lessons.forEach(lesson => {
+        // Lọc bài học theo Khóa học
+        if (state.activeCourse === 'sql') {
+            if (lesson.id < 33) return;
+        } else {
+            if (lesson.id >= 33) return;
+        }
+
         if (!phases[lesson.phase]) {
             phases[lesson.phase] = [];
         }
@@ -385,6 +443,18 @@ function loadLesson(lessonId) {
             lesson = state.lessons.find(l => l.id === 1);
         }
         if (!lesson) return;
+
+        // Đồng bộ hóa khóa học đang hoạt động từ bài học hiện tại
+        const targetCourse = lesson.id >= 33 ? 'sql' : 'java';
+        if (state.activeCourse !== targetCourse) {
+            state.activeCourse = targetCourse;
+            const courseSelect = document.getElementById('course-select');
+            if (courseSelect) {
+                courseSelect.value = targetCourse;
+            }
+            updateLogoAndSubtitle(targetCourse);
+            renderSidebar();
+        }
         
         // Cập nhật Header
         document.getElementById('header-phase-name').innerText = lesson.phase || 'Phase 1: Fundamentals';
@@ -535,6 +605,18 @@ function loadExercise(exerciseId) {
         if (state.editor) {
             const savedCode = state.userCodes[exerciseId];
             state.editor.setValue(savedCode || exercise.starterCode || '');
+            
+            // Tự động đổi ngôn ngữ Monaco Editor theo đuôi file
+            const ext = (exercise.fileName || '').split('.').pop();
+            const monacoLang = ext === 'sql' ? 'sql' : 'java';
+            if (state.editor.getModel()) {
+                monaco.editor.setModelLanguage(state.editor.getModel(), monacoLang);
+            }
+            
+            // Reset sandbox database để đảm bảo cô lập dữ liệu giữa các bài tập
+            if (monacoLang === 'sql') {
+                initSqlDatabase(true).catch(err => console.log("Khởi động/Reset SQLite database sandbox...", err));
+            }
         }
         
         // Cập nhật lại giá trị dropdown (nếu cần thiết)
@@ -546,7 +628,11 @@ function loadExercise(exerciseId) {
         // Cập nhật terminal
         const terminal = document.getElementById('terminal-output');
         if (terminal) {
-            terminal.innerHTML = `<span class="terminal-line system-msg">Đã nạp bài tập: ${exercise.title}. Sẵn sàng!</span>`;
+            if ((exercise.fileName || '').endsWith('.sql')) {
+                terminal.innerHTML = `<span class="terminal-line system-msg">Đã nạp bài tập SQL: ${exercise.title}. Hãy viết truy vấn SQL của bạn và bấm Chạy thử!</span>`;
+            } else {
+                terminal.innerHTML = `<span class="terminal-line system-msg">Đã nạp bài tập: ${exercise.title}. Sẵn sàng!</span>`;
+            }
         }
         
         // Mentor chào mừng
@@ -743,6 +829,21 @@ function setupEventHandlers() {
         });
     }
     
+    // Chọn khóa học (Course select)
+    const courseSelect = document.getElementById('course-select');
+    if (courseSelect) {
+        courseSelect.addEventListener('change', (e) => {
+            const selectedCourse = e.target.value;
+            state.activeCourse = selectedCourse;
+            updateLogoAndSubtitle(selectedCourse);
+            renderSidebar();
+            
+            // Load bài học đầu tiên của khóa học đó
+            const firstLessonId = selectedCourse === 'sql' ? 33 : 1;
+            loadLesson(firstLessonId);
+        });
+    }
+    
     // Toggle sidebar mobile
     document.getElementById('sidebar-toggle').addEventListener('click', () => {
         document.getElementById('app-sidebar').classList.toggle('visible');
@@ -774,8 +875,8 @@ function setupEventHandlers() {
     // --- SỰ KIỆN XÁC THỰC NGƯỜI DÙNG (AUTH HANDLERS) ---
     
     const loginTrigger = document.getElementById('btn-login-trigger');
-    const authModalOverlay = document.getElementById('auth-modal-overlay');
     const closeAuthModal = document.getElementById('btn-close-auth-modal');
+    const introStartBtn = document.getElementById('btn-intro-start');
     
     if (loginTrigger) {
         loginTrigger.addEventListener('click', () => openAuthModal());
@@ -783,9 +884,9 @@ function setupEventHandlers() {
     if (closeAuthModal) {
         closeAuthModal.addEventListener('click', () => closeAuthModalFn());
     }
-    if (authModalOverlay) {
-        authModalOverlay.addEventListener('click', (e) => {
-            if (e.target === authModalOverlay) closeAuthModalFn();
+    if (introStartBtn) {
+        introStartBtn.addEventListener('click', () => {
+            openAuthModal();
         });
     }
     
@@ -920,6 +1021,28 @@ function setupEventHandlers() {
             logout();
         });
     }
+
+    // Đăng ký sự kiện hiện/ẩn mật khẩu cho các trường input password
+    document.querySelectorAll('.btn-toggle-password').forEach(btn => {
+        // Tránh bị nhân đôi handler nếu setupEventHandlers được gọi lại
+        const newBtn = btn.cloneNode(true);
+        btn.replaceWith(newBtn);
+        newBtn.addEventListener('click', () => {
+            const input = newBtn.closest('.input-with-icon').querySelector('input');
+            if (!input) return;
+            
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            
+            // Cập nhật icon Lucide
+            const newIconName = isPassword ? 'eye-off' : 'eye';
+            newBtn.innerHTML = `<i data-lucide="${newIconName}"></i>`;
+            
+            if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        });
+    });
 }
 
 
@@ -1115,8 +1238,143 @@ function runCodeEnv(javaCode) {
     }
 }
 
+// --- INTEGRATION: SQLITE WEB-ASSEMBLY FOR BROWSER SANDBOX ---
+let SQL = null;
+let dbInstance = null;
+
+async function initSqlDatabase(forceReset = false) {
+    if (dbInstance && !forceReset) return dbInstance;
+    
+    if (!SQL) {
+        if (typeof initSqlJs === 'undefined') {
+            throw new Error("Không thể tải thư viện sql.js. Vui lòng kiểm tra lại kết nối mạng!");
+        }
+        SQL = await initSqlJs({
+            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+        });
+    }
+    
+    const db = new SQL.Database();
+    
+    // Khởi tạo schema RaizeShop mẫu
+    db.run(`
+        CREATE TABLE categories (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL
+        );
+        
+        CREATE TABLE products (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            price REAL NOT NULL,
+            stock INTEGER NOT NULL,
+            category_id INTEGER,
+            rating REAL,
+            FOREIGN KEY (category_id) REFERENCES categories(id)
+        );
+        
+        CREATE TABLE users (
+            id INTEGER PRIMARY KEY,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            balance REAL DEFAULT 0.0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        CREATE TABLE orders (
+            id INTEGER PRIMARY KEY,
+            user_id INTEGER,
+            product_id INTEGER,
+            quantity INTEGER NOT NULL,
+            order_date TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (product_id) REFERENCES products(id)
+        );
+    `);
+    
+    // Categories
+    db.run("INSERT INTO categories VALUES (1, 'Vũ khí');");
+    db.run("INSERT INTO categories VALUES (2, 'Giáp bảo vệ');");
+    db.run("INSERT INTO categories VALUES (3, 'Trang sức');");
+    db.run("INSERT INTO categories VALUES (4, 'Vật phẩm hỗ trợ');");
+    
+    // Products
+    db.run("INSERT INTO products VALUES (1, 'Kiếm Dragon +10', 1500000.0, 5, 1, 4.8);");
+    db.run("INSERT INTO products VALUES (2, 'Gậy Thần Ma', 2000000.0, 3, 1, 4.9);");
+    db.run("INSERT INTO products VALUES (3, 'Giáp Hắc Vương', 1200000.0, 8, 2, 4.7);");
+    db.run("INSERT INTO products VALUES (4, 'Khiên Tinh Thể', 900000.0, 12, 2, 4.5);");
+    db.run("INSERT INTO products VALUES (5, 'Bình Máu Siêu Cấp', 800000.0, 500, 4, 4.2);");
+    db.run("INSERT INTO products VALUES (6, 'Bình Mana Siêu Cấp', 700000.0, 450, 4, 4.3);");
+    db.run("INSERT INTO products VALUES (7, 'Vé Reset Điểm', 50000.0, 100, 4, 4.6);");
+    db.run("INSERT INTO products VALUES (8, 'Nhẫn Bão Táp', 590000.0, 15, 3, 4.7);");
+    
+    // Users
+    db.run("INSERT INTO users VALUES (1, 'raize', 'raize@yahoo.com', 12000000.0, '2026-06-01 10:00:00');");
+    db.run("INSERT INTO users VALUES (2, 'dragonmaster99', 'dragonmaster99@gmail.com', 5000000.0, '2026-06-02 12:30:00');");
+    db.run("INSERT INTO users VALUES (3, 'gameraise', 'gameraise@gmail.com', 150000.0, '2026-06-05 15:45:00');");
+    db.run("INSERT INTO users VALUES (4, 'newbie123', 'newbie123@yahoo.com', 0.0, '2026-06-10 09:00:00');");
+    
+    // Orders
+    db.run("INSERT INTO orders VALUES (1, 1, 1, 1, '2026-06-15 14:20:00');");
+    db.run("INSERT INTO orders VALUES (2, 1, 7, 1, '2026-06-15 16:30:00');");
+    db.run("INSERT INTO orders VALUES (3, 2, 2, 1, '2026-06-16 11:15:00');");
+    db.run("INSERT INTO orders VALUES (4, 4, 3, 1, '2026-06-17 18:00:00');");
+    db.run("INSERT INTO orders VALUES (5, 4, 4, 1, '2026-06-18 10:10:00');");
+    db.run("INSERT INTO orders VALUES (6, 2, 5, 2, '2026-06-19 09:30:00');");
+    db.run("INSERT INTO orders VALUES (7, 2, 8, 1, '2026-06-19 15:00:00');");
+    
+    dbInstance = db;
+    return dbInstance;
+}
+
+function formatSqlResultsToHtmlTable(res) {
+    if (!res || res.length === 0) {
+        return '<span class="terminal-line output">[Không có dữ liệu trả về hoặc câu lệnh chạy thành công]</span>';
+    }
+    
+    let html = '<table class="terminal-table">';
+    // Header
+    html += '<thead><tr>';
+    res[0].columns.forEach(col => {
+        html += `<th>${escapeHtml(col)}</th>`;
+    });
+    html += '</tr></thead>';
+    
+    // Body
+    html += '<tbody>';
+    res[0].values.forEach(row => {
+        html += '<tr>';
+        row.forEach(val => {
+            const displayVal = val === null ? '<span style="color: var(--text-muted); font-style: italic;">NULL</span>' : escapeHtml(String(val));
+            html += `<td>${displayVal}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+    return html;
+}
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 // Bấm nút Chạy Thử
 function runCodeSimulation() {
+    const lesson = state.lessons.find(l => l.id === state.currentLessonId);
+    if (!lesson || !lesson.exercises) return;
+    const exercise = lesson.exercises.find(e => e.id === state.currentExerciseId);
+    const isSql = exercise && (exercise.fileName || '').endsWith('.sql');
+
+    if (isSql) {
+        runSqlCodeSimulation();
+        return;
+    }
+
     const code = state.editor.getValue();
     const terminal = document.getElementById('terminal-output');
     terminal.innerHTML = '<span class="terminal-line system-msg">Đang biên dịch và chạy file Java...</span>';
@@ -1135,15 +1393,63 @@ function runCodeSimulation() {
     }, 400);
 }
 
+async function runSqlCodeSimulation() {
+    const code = state.editor.getValue();
+    const terminal = document.getElementById('terminal-output');
+    terminal.innerHTML = '<span class="terminal-line system-msg">Đang thực thi truy vấn SQL...</span>';
+    
+    try {
+        const db = await initSqlDatabase();
+        
+        // Bắt đầu transaction
+        db.run("BEGIN TRANSACTION;");
+        
+        // Chạy truy vấn
+        const res = db.exec(code);
+        const rowsModified = db.getRowsModified();
+        
+        // Lấy kết quả hiển thị
+        let outputHtml = "";
+        if (res.length > 0) {
+            outputHtml = formatSqlResultsToHtmlTable(res);
+        } else {
+            outputHtml = `<span class="terminal-line output">Chạy thành công. Số dòng bị ảnh hưởng: ${rowsModified}</span>`;
+        }
+        
+        // Rollback để reset trạng thái database
+        db.run("ROLLBACK;");
+        
+        terminal.innerHTML = outputHtml;
+        terminal.innerHTML += `<span class="terminal-line success-msg">>> Báo cáo: Thực thi SQL thành công!</span>`;
+        mentorSpeak("Tuyệt vời! Truy vấn SQL của em đã chạy thành công. Hãy nhấn <b>Nộp Bài</b> để chấm điểm tự động nhé!");
+        
+    } catch (err) {
+        // Đảm bảo rollback nếu có lỗi xảy ra giữa chừng
+        try {
+            const db = await initSqlDatabase();
+            db.run("ROLLBACK;");
+        } catch(e) {}
+        
+        terminal.innerHTML = `<span class="terminal-line error-msg">[Lỗi SQL]: ${err.message}</span>`;
+        mentorSpeak("Ồ! Có vẻ câu truy vấn SQL của em đang bị lỗi cú pháp rồi. Hãy đọc kỹ thông báo lỗi ở Terminal nhé.");
+    }
+}
+
 // Bấm nút Nộp Bài
 function submitCodeChallenge() {
-    const code = state.editor.getValue();
     const lesson = state.lessons.find(l => l.id === state.currentLessonId);
     if (!lesson || !lesson.exercises) return;
     
     const exercise = lesson.exercises.find(e => e.id === state.currentExerciseId);
     if (!exercise) return;
     
+    const isSql = exercise && (exercise.fileName || '').endsWith('.sql');
+    if (isSql) {
+        submitSqlCodeChallenge();
+        return;
+    }
+
+    const code = state.editor.getValue();
     const terminal = document.getElementById('terminal-output');
     terminal.innerHTML = '<span class="terminal-line system-msg">Đang chạy bộ test kiểm thử tự động...</span>';
     
@@ -1182,6 +1488,74 @@ function submitCodeChallenge() {
             mentorSpeak(`Chưa đạt rồi em ơi. Gợi ý: <i>${testResult.msg}</i>. Đọc kỹ yêu cầu và thử lại nhé!`);
         }
     }, 500);
+}
+
+async function submitSqlCodeChallenge() {
+    const code = state.editor.getValue();
+    const lesson = state.lessons.find(l => l.id === state.currentLessonId);
+    if (!lesson || !lesson.exercises) return;
+    
+    const exercise = lesson.exercises.find(e => e.id === state.currentExerciseId);
+    if (!exercise) return;
+    
+    const terminal = document.getElementById('terminal-output');
+    terminal.innerHTML = '<span class="terminal-line system-msg">Đang chạy chấm điểm tự động...</span>';
+    
+    try {
+        const db = await initSqlDatabase();
+        
+        // Chạy trong transaction
+        db.run("BEGIN TRANSACTION;");
+        
+        // Chạy thử query của học sinh để lấy output (nếu SELECT)
+        let output = "";
+        let studentRes = null;
+        try {
+            studentRes = db.exec(code);
+            if (studentRes.length > 0) {
+                output = formatSqlResultsToHtmlTable(studentRes);
+            } else {
+                output = `Chạy thành công. Số dòng bị ảnh hưởng: ${db.getRowsModified()}`;
+            }
+        } catch (e) {
+            db.run("ROLLBACK;");
+            terminal.innerHTML = `<span class="terminal-line error-msg">[Thất bại]: Lỗi khi thực thi SQL.\n${e.message}</span>`;
+            mentorSpeak("Không thể chấm điểm vì câu lệnh SQL của em có lỗi. Sửa lại đã nhé!");
+            return;
+        }
+        
+        // Trích xuất hàm validate từ validateStr
+        let testResult = { pass: false, msg: "Lỗi cấu hình test case." };
+        try {
+            const validateFn = new Function('code', 'output', 'db', `return (${exercise.validateStr})(code, output, db);`);
+            testResult = validateFn(code, output, db);
+        } catch (e) {
+            console.error("Lỗi chạy validate function SQL: ", e);
+            testResult = { pass: false, msg: "Hệ thống test case bị lỗi cú pháp: " + e.message };
+        }
+        
+        // Rollback để khôi phục trạng thái database ban đầu
+        db.run("ROLLBACK;");
+        
+        if (testResult.pass) {
+            terminal.innerHTML = studentRes && studentRes.length > 0 ? output : `<span class="terminal-line output">${output}</span>`;
+            terminal.innerHTML += `<span class="terminal-line success-msg">>> CHÚC MỪNG: Vượt qua tất cả test cases! [100/100]</span>`;
+            
+            if (!state.completedExercises.has(exercise.id)) {
+                toggleExerciseComplete(exercise.id);
+            }
+            
+            mentorSpeak(`Thầy chúc mừng em! <b>${testResult.msg}</b> Thách thức đã hoàn thành xuất sắc!`);
+            triggerConfetti();
+        } else {
+            terminal.innerHTML = studentRes && studentRes.length > 0 ? output : `<span class="terminal-line output">${output}</span>`;
+            terminal.innerHTML += `<span class="terminal-line error-msg">>> THẤT BẠI: Test case không đạt!\nLý do: ${testResult.msg}</span>`;
+            mentorSpeak(`Chưa đạt rồi em ơi. Gợi ý: <i>${testResult.msg}</i>. Thử lại nhé!`);
+        }
+        
+    } catch (err) {
+        terminal.innerHTML = `<span class="terminal-line error-msg">[Lỗi hệ thống chấm bài]: ${err.message}</span>`;
+    }
 }
 
 // ----------------------------------------------------
@@ -1665,7 +2039,7 @@ function initVisualizer(lesson) {
         
         viewport.innerHTML = `
             <div style="text-align:center;padding:20px;">
-                <div class="logo-icon" style="font-size:60px;margin-bottom:15px;color:var(--accent-purple);">☕</div>
+                <div class="logo-icon" style="font-size:60px;margin-bottom:15px;color:var(--accent-purple);">${lesson.id >= 33 ? '🗄️' : '☕'}</div>
                 <h4>Bài học: ${lesson.title}</h4>
                 <p style="color:var(--text-secondary);margin:10px 0;font-size:14px;">Mức độ: <b>${lesson.difficulty}</b> | Thời lượng: <b>${lesson.time}</b></p>
                 <div style="margin-top:20px;padding:15px;border-radius:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);display:inline-block;">
@@ -1764,10 +2138,22 @@ function logout() {
     localStorage.removeItem('raize_java_token');
     localStorage.removeItem('raize_java_username');
     
-    // Tải lại tiến độ dạng xem thử và vẽ lại giao diện
+    // Tải lại tiến độ dạng xem thử và hiển thị màn hình giới thiệu
     loadProgressFallback();
-    initApp();
-    mentorSpeak("Đã đăng xuất thành công. Bạn hiện đang trải nghiệm ở chế độ xem thử khách.");
+    mentorSpeak("Đã đăng xuất thành công. Bạn hiện đang ở màn hình giới thiệu.");
+}
+
+function toggleMainAppVisibility() {
+    const introContainer = document.getElementById('intro-container');
+    const appContainer = document.querySelector('.app-container');
+    
+    if (state.token) {
+        if (introContainer) introContainer.style.display = 'none';
+        if (appContainer) appContainer.style.display = 'grid';
+    } else {
+        if (introContainer) introContainer.style.display = 'flex';
+        if (appContainer) appContainer.style.display = 'none';
+    }
 }
 
 function updateAuthUI(isLoggedIn, username) {
@@ -1786,6 +2172,8 @@ function updateAuthUI(isLoggedIn, username) {
         if (profileMenu) profileMenu.style.display = 'none';
         showGuestModeBanner();
     }
+    
+    toggleMainAppVisibility();
     
     // Vẽ lại icon lucide nếu có thay đổi cấu trúc cây DOM
     if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
