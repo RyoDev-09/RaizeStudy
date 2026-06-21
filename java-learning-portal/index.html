@@ -182,10 +182,49 @@
 
             <!-- Tab Panels Area -->
             <div class="tabs-content">
-                <!-- Panel 1: Theory -->
+                <!-- Panel 1: Theory + Sandbox IDE -->
                 <section class="tab-panel active" id="panel-theory">
-                    <div class="theory-view markdown-body" id="theory-content">
-                        <!-- Markdown content is loaded here -->
+                    <div class="theory-split-layout">
+                        <!-- Left: Markdown Theory Content -->
+                        <div class="theory-content-pane">
+                            <div class="theory-view markdown-body" id="theory-content">
+                                <!-- Markdown content is loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Resizer -->
+                        <div class="theory-resizer" id="theory-resizer"></div>
+
+                        <!-- Right: Sandbox IDE -->
+                        <div class="theory-sandbox-pane" id="theory-sandbox-pane">
+                            <div class="theory-sandbox-header">
+                                <div class="theory-sandbox-title">
+                                    <i data-lucide="terminal-square"></i>
+                                    <span>📝 Sandbox – Code theo lý thuyết</span>
+                                </div>
+                                <div class="theory-sandbox-actions">
+                                    <button class="btn-theory-run" id="btn-theory-run" title="Chạy code">
+                                        <i data-lucide="play"></i>
+                                        <span>Chạy</span>
+                                    </button>
+                                    <button class="btn-theory-clear" id="btn-theory-clear" title="Xóa code">
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Theory Monaco Editor -->
+                            <div id="theory-editor-container" class="theory-editor-element"></div>
+                            <!-- Theory Terminal Output -->
+                            <div class="theory-terminal-pane">
+                                <div class="theory-terminal-header">
+                                    <i data-lucide="terminal"></i>
+                                    <span>Kết quả</span>
+                                </div>
+                                <div class="theory-terminal-body" id="theory-terminal-output">
+                                    <span class="terminal-line system-msg">&#128161; Gõ code Java bên trên và nhấn <b>Chạy</b> để xem kết quả ngay!</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 

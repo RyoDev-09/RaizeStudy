@@ -10,6 +10,7 @@ let state = {
     quizSelectedAnswer: null,
     quizAnswersCount: 0,
     editor: null,
+    theoryEditor: null, // Monaco editor riêng cho sandbox lý thuyết
     userCodes: {}, // Code lưu theo exercise_id
     token: localStorage.getItem('raize_java_token') || null,
     activeCourse: 'java' // 'java' hoặc 'sql'
@@ -251,8 +252,14 @@ function initApp() {
         // Render danh sách menu bài học ở sidebar
         renderSidebar();
         
-        // Khởi động Monaco Editor
+        // Khởi động Monaco Editor (Practice IDE)
         initMonaco();
+        
+        // Khởi động Monaco Sandbox cho Tab Lý Thuyết
+        initTheoryMonaco();
+        
+        // Khởi động resizer cho theory split layout
+        initTheoryResizer();
         
         // Load bài học hiện tại
         loadLesson(state.currentLessonId);
@@ -344,12 +351,139 @@ function initMonaco() {
             
             const ext = (currentEx.fileName || 'Main.java').split('.').pop();
             const monacoLang = ext === 'sql' ? 'sql' : 'java';
-            monaco.editor.setModelLanguage(state.editor.getModel(), monacoLang);
-        }
-    });
-}
+            monaco.editor.setModelLanguage(state.editor.getModel(), monacoLang);\r
+        }\r
+    });\r
+}\r
+\r
+// KHỞI TẠO MONACO SANDBOX CHO MÀN LÝ THUYẾT\r
+function initTheoryMonaco() {\r
+    if (state.theoryEditor) {\r
+        // Đã khởi tạo rồi, chỉ cần layout lại\r
+        setTimeout(() => state.theoryEditor.layout(), 100);\r
+        return;\r
+    }\r
+\r
+    const container = document.getElementById('theory-editor-container');\r
+    if (!container) return;\r
+\r
+    // Cần đợi Monaco đã được load (từ require(['vs/editor/editor.main']))\r
+    const tryCreate = () => {\r
+        if (typeof monaco === 'undefined') {\r
+            setTimeout(tryCreate, 300);\r
+            return;\r
+        }\r
+        if (state.theoryEditor) return;\r
+\r
+        const lesson = state.lessons.find(l => l.id === state.currentLessonId);\r
+        const isSql = lesson && lesson.id >= 33;\r
+        const lang = isSql ? 'sql' : 'java';\r
+        const starterCode = isSql\r
+            ? `-- Viết câu truy vấn SQL của bạn ở đây\nSELECT 'Hello, SQL!' AS message;`\r
+            : `public class Sandbox {\n    public static void main(String[] args) {\n        // Thực hành theo lý thuyết bên cạnh\n        System.out.println("Hello, Java!");\n    }\n}`;\r
+\r
+        state.theoryEditor = monaco.editor.create(container, {\r
+            value: starterCode,\r
+            language: lang,\r
+            theme: 'vs-dark',\r
+            automaticLayout: true,\r
+            fontSize: 13,\r
+            fontFamily: "'Fira Code', monospace",\r
+            minimap: { enabled: false },\r
+            lineNumbers: 'on',\r
+            scrollBeyondLastLine: false,\r
+            scrollbar: {\r
+                vertical: 'auto',\r
+                horizontal: 'auto',\r
+                useShadows: false,\r
+                verticalScrollbarSize: 8,\r
+                horizontalScrollbarSize: 8\r
+            },\r
+            roundedSelection: false,\r
+            readOnly: false,\r
+            wordWrap: 'off'\r
+        });\r
+    };\r
+    tryCreate();\r
+}\r
+\r
+// CHẠY CODE TRONG THEORY SANDBOX\r
+function runTheorySandbox() {\r
+    const terminal = document.getElementById('theory-terminal-output');\r
+    if (!terminal) return;\r
+\r
+    if (!state.theoryEditor) {\r
+        terminal.innerHTML = '<span class="terminal-line error-msg">⚠️ Editor chưa sẵn sàng. Vui lòng thử lại sau giây lát.</span>';\r
+        return;\r
+    }\r
+\r
+    const code = state.theoryEditor.getValue();\r
+    if (!code.trim()) {\r
+        terminal.innerHTML = '<span class="terminal-line system-msg">ℹ️ Chưa có code để chạy. Hãy viết code Java vào editor!</span>';\r
+        return;\r
+    }\r
+\r
+    terminal.innerHTML = '<span class="terminal-line system-msg">⚙️ Đang biên dịch và chạy...</span>';\r
+\r
+    setTimeout(() => {\r
+        try {\r
+            const res = runCodeEnv(code);\r
+            if (res.success) {\r
+                const outputLines = (res.output || '[Chương trình kết thúc nhưng không in ra gì]')\r
+                    .split('\n')\r
+                    .map(line => `<span class="terminal-line output">${line}</span>`)\r
+                    .join('');\r
+                terminal.innerHTML = outputLines;\r
+                terminal.innerHTML += '<span class="terminal-line success-msg">✅ Chạy thành công!</span>';\r
+            } else {\r
+                terminal.innerHTML = `<span class="terminal-line error-msg">${res.output}</span>`;\r
+            }\r
+        } catch (e) {\r
+            terminal.innerHTML = `<span class="terminal-line error-msg">❌ Lỗi: ${e.message}</span>`;\r
+        }\r
+    }, 350);\r
+}\r
+\r
+// KHỞI TẠO RESIZER CHO THEORY SPLIT LAYOUT\r
+function initTheoryResizer() {\r
+    const resizer = document.getElementById('theory-resizer');\r
+    const layout = document.querySelector('.theory-split-layout');\r
+    if (!resizer || !layout) return;\r
+\r
+    resizer.addEventListener('mousedown', (e) => {\r
+        e.preventDefault();\r
+        resizer.classList.add('dragging');\r
+        document.body.style.cursor = 'col-resize';\r
+        document.body.style.userSelect = 'none';\r
+\r
+        const startX = e.clientX;\r
+        const cols = window.getComputedStyle(layout).gridTemplateColumns.split(' ');\r
+        const startLeftWidth = parseFloat(cols[0]);\r
+\r
+        const onMouseMove = (ev) => {\r
+            const dx = ev.clientX - startX;\r
+            let newLeft = startLeftWidth + dx;\r
+            const minLeft = 320;\r
+            const maxLeft = window.innerWidth - 350;\r
+            newLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);\r
+            layout.style.gridTemplateColumns = `${newLeft}px 5px 1fr`;\r
+            if (state.theoryEditor) state.theoryEditor.layout();\r
+        };\r
+\r
+        const onMouseUp = () => {\r
+            resizer.classList.remove('dragging');\r
+            document.body.style.cursor = '';\r
+            document.body.style.userSelect = '';\r
+            document.removeEventListener('mousemove', onMouseMove);\r
+            document.removeEventListener('mouseup', onMouseUp);\r
+        };\r
+\r
+        document.addEventListener('mousemove', onMouseMove);\r
+        document.addEventListener('mouseup', onMouseUp);\r
+    });\r
+}\r
+\r
 
-// RENDER MENU DỌC (SIDEBAR)
 function renderSidebar() {
     const nav = document.getElementById('sidebar-nav');
     nav.innerHTML = '';
@@ -695,7 +829,13 @@ function switchTab(tabId) {
         panel.classList.remove('active');
     });
     
-    if (tabId === 'theory') document.getElementById('panel-theory').classList.add('active');
+    if (tabId === 'theory') {
+        document.getElementById('panel-theory').classList.add('active');
+        // Kích hoạt lại bố cục Monaco sandbox lý thuyết
+        if (state.theoryEditor) {
+            setTimeout(() => state.theoryEditor.layout(), 100);
+        }
+    }
     if (tabId === 'visual') document.getElementById('panel-visual').classList.add('active');
     if (tabId === 'quiz') document.getElementById('panel-quiz').classList.add('active');
     if (tabId === 'practice') {
@@ -872,7 +1012,35 @@ function setupEventHandlers() {
         submitCodeChallenge();
     });
 
-    // --- SỰ KIỆN XÁC THỰC NGƯỜI DÙNG (AUTH HANDLERS) ---
+    // --- THEORY SANDBOX BUTTONS ---
+
+    // Chạy code trong Sandbox lý thuyết
+    const btnTheoryRun = document.getElementById('btn-theory-run');
+    if (btnTheoryRun) {
+        btnTheoryRun.addEventListener('click', () => {
+            runTheorySandbox();
+        });
+    }
+
+    // Xóa và reset editor sandbox lý thuyết
+    const btnTheoryClear = document.getElementById('btn-theory-clear');
+    if (btnTheoryClear) {
+        btnTheoryClear.addEventListener('click', () => {
+            if (!state.theoryEditor) return;
+            const lesson = state.lessons.find(l => l.id === state.currentLessonId);
+            const isSql = lesson && lesson.id >= 33;
+            const emptyCode = isSql
+                ? `-- Viết câu truy vấn SQL của bạn ở đây\nSELECT 'Hello, SQL!' AS message;`
+                : `public class Sandbox {\n    public static void main(String[] args) {\n        // Thực hành theo lý thuyết bên cạnh\n        System.out.println("Hello, Java!");\n    }\n}`;
+            state.theoryEditor.setValue(emptyCode);
+            const terminal = document.getElementById('theory-terminal-output');
+            if (terminal) {
+                terminal.innerHTML = '<span class="terminal-line system-msg">💡 Editor đã được làm mới. Bắt đầu gõ code theo lý thuyết!</span>';
+            }
+        });
+    }
+
+
     
     const loginTrigger = document.getElementById('btn-login-trigger');
     const closeAuthModal = document.getElementById('btn-close-auth-modal');
