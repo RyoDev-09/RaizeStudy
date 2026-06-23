@@ -48,9 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Nạp tiến độ học tương ứng
                 if (state.token) {
-                    await loadProgressFromDB();
-                    // Khởi chạy ứng dụng khi đã đăng nhập
-                    initApp();
+                    try {
+                        await loadProgressFromDB();
+                        // Khởi chạy ứng dụng khi đã đăng nhập
+                        initApp();
+                    } catch (err) {
+                        console.error("Lỗi khi nạp tiến độ từ database:", err);
+                        document.getElementById('sidebar-nav').innerHTML = '<div class="loading-placeholder">Lỗi kết nối máy chủ khi nạp tiến trình! Vui lòng F5 thử lại.</div>';
+                    }
                 } else {
                     loadProgressFallback();
                 }
@@ -66,28 +71,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // TẢI TIẾN ĐỘ CÁ NHÂN TỪ DB (KHI ĐÃ ĐĂNG NHẬP)
 async function loadProgressFromDB() {
-    try {
-        const res = await fetch('/api/progress', {
-            headers: {
-                'Authorization': `Bearer ${state.token}`
-            }
-        });
-        if (res.status === 401 || res.status === 403) {
-            logout();
-            return;
+    const res = await fetch('/api/progress', {
+        headers: {
+            'Authorization': `Bearer ${state.token}`
         }
-        const data = await res.json();
-        state.completedLessons = new Set(data.completedLessons || []);
-        state.completedExercises = new Set(data.completedExercises || []);
-        state.userCodes = data.userCodes || {};
-        state.currentLessonId = parseInt(data.currentLessonId) || 1;
-        state.currentExerciseId = data.currentExerciseId ? parseInt(data.currentExerciseId) : null;
-        
-        updateAuthUI(true);
-    } catch (e) {
-        console.error("Lỗi khi nạp tiến độ từ database:", e);
-        loadProgressFallback();
+    });
+    if (res.status === 401 || res.status === 403) {
+        logout();
+        return;
     }
+    if (!res.ok) {
+        throw new Error(`Lỗi máy chủ (status ${res.status}) khi tải tiến trình.`);
+    }
+    const data = await res.json();
+    state.completedLessons = new Set(data.completedLessons || []);
+    state.completedExercises = new Set(data.completedExercises || []);
+    state.userCodes = data.userCodes || {};
+    state.currentLessonId = parseInt(data.currentLessonId) || 1;
+    state.currentExerciseId = data.currentExerciseId ? parseInt(data.currentExerciseId) : null;
+    
+    updateAuthUI(true);
 }
 
 // TẢI TIẾN ĐỘ TỪ LOCALSTORAGE (GUEST MODE FALLBACK)
@@ -284,6 +287,147 @@ function updateLogoAndSubtitle(course) {
     }
 }
 
+// ĐĂNG KÝ PHÍM TẮT/GÕ TẮT (SNIPPETS) CHO MONACO EDITOR
+function registerMonacoSnippets() {
+    if (typeof monaco === 'undefined') return;
+
+    // Phím tắt gõ nhanh cho Java
+    monaco.languages.registerCompletionItemProvider('java', {
+        provideCompletionItems: function(model, position) {
+            var word = model.getWordUntilPosition(position);
+            var range = {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: word.startColumn,
+                endColumn: word.endColumn
+            };
+            var suggestions = [
+                {
+                    label: 'psvm',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'public static void main(String[] args) {\n\t$0\n}',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Khai báo phương thức main nhanh',
+                    range: range
+                },
+                {
+                    label: 'main',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'public static void main(String[] args) {\n\t$0\n}',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Khai báo phương thức main nhanh',
+                    range: range
+                },
+                {
+                    label: 'sout',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'System.out.println($0);',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'In một dòng ra màn hình Console',
+                    range: range
+                },
+                {
+                    label: 'souf',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'System.out.printf("$1", $0);',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'In định dạng ra màn hình Console',
+                    range: range
+                },
+                {
+                    label: 'fori',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'for (int i = 0; i < $1; i++) {\n\t$0\n}',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Vòng lặp for cơ bản với biến chạy i',
+                    range: range
+                },
+                {
+                    label: 'sysin',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'Scanner scanner = new Scanner(System.in);\n$0\nscanner.close();',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Khởi tạo và đóng lớp Scanner nhập dữ liệu bàn phím',
+                    range: range
+                },
+                {
+                    label: 'cl',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'public class $1 {\n\t$0\n}',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Khai báo một lớp public class mới',
+                    range: range
+                },
+                {
+                    label: 'ife',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'if ($1) {\n\t$2\n} else {\n\t$0\n}',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Cấu trúc điều kiện rẽ nhánh if-else',
+                    range: range
+                }
+            ];
+            return { suggestions: suggestions };
+        }
+    });
+
+    // Phím tắt gõ nhanh cho SQL
+    monaco.languages.registerCompletionItemProvider('sql', {
+        provideCompletionItems: function(model, position) {
+            var word = model.getWordUntilPosition(position);
+            var range = {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: word.startColumn,
+                endColumn: word.endColumn
+            };
+            var suggestions = [
+                {
+                    label: 'ssf',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'SELECT * FROM $0;',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Truy vấn lấy toàn bộ dữ liệu từ bảng',
+                    range: range
+                },
+                {
+                    label: 'select',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'SELECT $1 FROM $2 WHERE $0;',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Truy vấn lọc dữ liệu SELECT ... WHERE ...',
+                    range: range
+                },
+                {
+                    label: 'insert',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'INSERT INTO $1 ($2) VALUES ($0);',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Thêm bản ghi dữ liệu INSERT INTO',
+                    range: range
+                },
+                {
+                    label: 'update',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'UPDATE $1 SET $2 = $3 WHERE $0;',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Cập nhật bản ghi dữ liệu UPDATE',
+                    range: range
+                },
+                {
+                    label: 'delete',
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertText: 'DELETE FROM $1 WHERE $0;',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Xóa bản ghi dữ liệu DELETE',
+                    range: range
+                }
+            ];
+            return { suggestions: suggestions };
+        }
+    });
+}
+
 // KHỞI TẠO MONACO EDITOR
 function initMonaco() {
     if (state.editor) {
@@ -310,6 +454,10 @@ function initMonaco() {
     require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
     require(['vs/editor/editor.main'], function () {
         if (state.editor) return; // Bảo vệ bất đồng bộ trong require
+        
+        // Đăng ký các snippet/phím tắt gõ nhanh cho Java & SQL
+        registerMonacoSnippets();
+
         state.editor = monaco.editor.create(document.getElementById('editor-container'), {
             value: '',
             language: 'java',
@@ -481,6 +629,52 @@ function initTheoryResizer() {
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
     });
+
+    // Kéo co dãn dọc (Monaco Sandbox Editor vs Kết quả Terminal)
+    const resizerV = document.getElementById('theory-resizer-v');
+    const sandboxPane = document.getElementById('theory-sandbox-pane');
+    if (resizerV && sandboxPane) {
+        resizerV.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            resizerV.classList.add('dragging');
+            
+            document.body.style.cursor = 'row-resize';
+            document.body.style.userSelect = 'none';
+            
+            const computedStyle = window.getComputedStyle(sandboxPane);
+            const gridRows = computedStyle.gridTemplateRows.split(' ');
+            const startTerminalHeight = parseFloat(gridRows[3]); // Hàng thứ 4 là Terminal Output (auto 1fr 6px 180px)
+            const startY = e.clientY;
+
+            const onMouseMove = (moveEvent) => {
+                const dy = moveEvent.clientY - startY;
+                let newTerminalHeight = startTerminalHeight - dy; // Kéo lên làm giảm clientY -> tăng chiều cao
+                
+                // Giới hạn chiều cao
+                const minHeight = 80;
+                const maxHeight = sandboxPane.clientHeight - 120; // Trừ đi header (~52px) và chiều cao tối thiểu editor (~68px)
+                if (newTerminalHeight < minHeight) newTerminalHeight = minHeight;
+                if (newTerminalHeight > maxHeight) newTerminalHeight = maxHeight;
+                
+                sandboxPane.style.gridTemplateRows = `auto 1fr 6px ${newTerminalHeight}px`;
+                
+                if (state.theoryEditor) {
+                    state.theoryEditor.layout();
+                }
+            };
+
+            const onMouseUp = () => {
+                resizerV.classList.remove('dragging');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+    }
 }
 
 
@@ -1351,38 +1545,307 @@ function runCodeEnv(javaCode) {
     js = js.replace(/System\.out\.println\s*\((.*?)\);/g, 'println($1);');
     js = js.replace(/System\.out\.print\s*\((.*?)\);/g, 'print($1);');
     js = js.replace(/System\.out\.printf\s*\((.*?)\);/g, 'printf($1);');
-    
-    // Trích xuất mã lệnh bên trong hàm main
-    let codeToRun = "";
-    const mainStart = js.indexOf("public static void main");
-    if (mainStart !== -1) {
-        let braceStart = js.indexOf("{", mainStart);
-        if (braceStart !== -1) {
-            let braceCount = 1;
-            let i = braceStart + 1;
-            while (i < js.length && braceCount > 0) {
-                if (js[i] === '{') braceCount++;
-                else if (js[i] === '}') braceCount--;
-                i++;
-            }
-            codeToRun = js.substring(braceStart + 1, i - 1);
+
+    // Trích xuất các chuỗi ký tự (string literals) để không bị các regex dịch sai
+    const stringLiterals = [];
+    let literalCount = 0;
+    js = js.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, (match) => {
+        const placeholder = `__JAVA_STR_LITERAL_${literalCount}__`;
+        stringLiterals.push({ placeholder, original: match });
+        literalCount++;
+        return placeholder;
+    });
+
+    // 1. Phục hồi một số Polyfill chuỗi để code Java chạy đúng trên JS
+    const polyfills = `
+        if (!String.prototype.equals) {
+            String.prototype.equals = function(other) { 
+                return this.toString() === (other !== null && other !== undefined ? other.toString() : null); 
+            };
         }
-    } else {
-        // Fallback: strip class
-        codeToRun = js
-            .replace(/public\s+class\s+\w+\s*\{/g, '')
-            .replace(/public\s+static\s+void\s+main\s*\(\s*String\s*\[\s*\]\s+\w+\s*\)\s*\{/g, '')
-            .replace(/\}$/g, '')
-            .replace(/\}$/g, '');
+        if (!String.prototype.equalsIgnoreCase) {
+            String.prototype.equalsIgnoreCase = function(other) { 
+                if (other === null || other === undefined) return false;
+                return this.toLowerCase() === other.toString().toLowerCase(); 
+            };
+        }
+        if (!String.prototype.contains) {
+            String.prototype.contains = function(other) { 
+                return this.includes(other); 
+            };
+        }
+        if (!String.prototype.isEmpty) {
+            String.prototype.isEmpty = function() { 
+                return this.length === 0; 
+            };
+        }
+        if (!String.prototype.isBlank) {
+            String.prototype.isBlank = function() { 
+                return this.trim().length === 0; 
+            };
+        }
+    `;
+
+    // 2. Tìm tất cả tên Class
+    const classNames = [];
+    const classRegex = /\bclass\s+([\w_$]+)/g;
+    let match;
+    while ((match = classRegex.exec(js)) !== null) {
+        classNames.push(match[1]);
     }
 
-    // Làm sạch cú pháp khai báo kiểu dữ liệu trong Java
-    // Mảng: int[] a = {1,2} -> let a = [1,2]
-    codeToRun = codeToRun.replace(/\b\w+\[\]\s+(\w+)\s*=\s*\{([\s\S]*?)\}/g, 'let $1 = [$2]');
-    // Biến: int x = 5 -> let x = 5
-    codeToRun = codeToRun.replace(/\b(int|double|float|String|boolean|char|var)\s+(\w+)\s*=/g, 'let $2 =');
-    // Hằng số: final int X = 5 -> const X = 5
-    codeToRun = codeToRun.replace(/\bfinal\s+(int|double|float|String|boolean|char|var)\s+(\w+)\s*=/g, 'const $2 =');
+    // 3. Tìm tên Class chính (chứa main) để strip lớp bọc
+    let mainClassName = null;
+    const mainClassRegex = /\bclass\s+([\w_$]+)\s*(?:extends\s+[\w_$]+\s*)?\{[\s\S]*?public\s+static\s+void\s+main/g;
+    const mainClassMatch = mainClassRegex.exec(js);
+    if (mainClassMatch) {
+        mainClassName = mainClassMatch[1];
+    } else {
+        const fallbackMainRegex = /\bclass\s+([\w_$]+)\s*\{[\s\S]*?\bmain\s*\(/g;
+        const fallbackMatch = fallbackMainRegex.exec(js);
+        if (fallbackMatch) mainClassName = fallbackMatch[1];
+    }
+
+    if (mainClassName) {
+        const classHeaderRegex = new RegExp(`(?:public\\s+)?class\\s+${mainClassName}\\s*(?:extends\\s+\\w+\\s*)?\\{`);
+        const headerMatch = classHeaderRegex.exec(js);
+        if (headerMatch) {
+            const startIdx = headerMatch.index;
+            const openBraceIdx = js.indexOf('{', startIdx);
+            if (openBraceIdx !== -1) {
+                let braceCount = 1;
+                let endIdx = -1;
+                for (let i = openBraceIdx + 1; i < js.length; i++) {
+                    if (js[i] === '{') braceCount++;
+                    else if (js[i] === '}') braceCount--;
+                    if (braceCount === 0) {
+                        endIdx = i;
+                        break;
+                    }
+                }
+                if (endIdx !== -1) {
+                    const beforeClass = js.substring(0, startIdx);
+                    const classContent = js.substring(openBraceIdx + 1, endIdx);
+                    const afterClass = js.substring(endIdx + 1);
+                    js = beforeClass + classContent + afterClass;
+                }
+            }
+        }
+    }
+
+    function cleanParams(paramStr) {
+        if (!paramStr || !paramStr.trim()) return '';
+        return paramStr.split(',').map(param => {
+            const parts = param.trim().split(/\s+/);
+            return parts[parts.length - 1].replace(/\.\.\./g, '');
+        }).join(', ');
+    }
+
+    // 4. Cắt tách mã thành khối class và khối top-level
+    let blocks = [];
+    let lastIdx = 0;
+    const classBlockRegex = /\bclass\s+([\w_$]+)\s*(?:extends\s+([\w_$]+)\s*)?\{/g;
+    let classMatch;
+    
+    while ((classMatch = classBlockRegex.exec(js)) !== null) {
+        const startIdx = classMatch.index;
+        const className = classMatch[1];
+        const openBraceIdx = js.indexOf('{', startIdx);
+        if (openBraceIdx !== -1) {
+            let braceCount = 1;
+            let endIdx = -1;
+            for (let i = openBraceIdx + 1; i < js.length; i++) {
+                if (js[i] === '{') braceCount++;
+                else if (js[i] === '}') braceCount--;
+                if (braceCount === 0) {
+                    endIdx = i;
+                    break;
+                }
+            }
+            if (endIdx !== -1) {
+                if (startIdx > lastIdx) {
+                    blocks.push({ type: 'top', content: js.substring(lastIdx, startIdx) });
+                }
+                blocks.push({
+                    type: 'class',
+                    className: className,
+                    content: js.substring(startIdx, endIdx + 1)
+                });
+                lastIdx = endIdx + 1;
+                classBlockRegex.lastIndex = lastIdx;
+            }
+        }
+    }
+    if (lastIdx < js.length) {
+        blocks.push({ type: 'top', content: js.substring(lastIdx) });
+    }
+
+    const keywords = new Set([
+        'public', 'private', 'protected', 'static', 'final', 'class', 'interface', 'extends', 'implements',
+        'new', 'return', 'throw', 'import', 'package', 'true', 'false', 'null', 'this', 'super',
+        'if', 'else', 'while', 'for', 'do', 'switch', 'case', 'break', 'continue', 'default',
+        'try', 'catch', 'finally', 'void', 'throw', 'const', 'let', 'var', 'function', 'class'
+    ]);
+
+    function translateVarDeclarations(bodyText) {
+        let tText = bodyText;
+        
+        // Dịch vòng lặp enhanced for: for (int x : list) -> for (let x of list)
+        tText = tText.replace(/\bfor\s*\(\s*(?:final\s+)?([\w_$<>]+)\s+([\w_$]+)\s*:\s*([^)]+)\)/g, 'for (let $2 of $3)');
+        
+        // Mảng: int[] a = {1, 2} -> let a = [1, 2]
+        tText = tText.replace(/\b[\w_$<>]+\[\]\s+([\w_$]+)\s*=\s*\{([\s\S]*?)\}/g, 'let $1 = [$2]');
+        // Mảng: int[] a = new int[5] -> let a = new Array(5)
+        tText = tText.replace(/\b[\w_$<>]+\[\]\s+([\w_$]+)\s*=\s*new\s+\w+\[\s*([^\]]*)\s*\]/g, 'let $1 = new Array($2)');
+
+        // Type var = val;
+        tText = tText.replace(/\b([\w_$<>]+)\s+([\w_$]+)\s*=/g, (m, type, varName) => {
+            const cleanType = type.split('<')[0];
+            if (keywords.has(cleanType)) return m;
+            return `let ${varName} =`;
+        });
+
+        // Type var;
+        tText = tText.replace(/\b([\w_$<>]+)\s+([\w_$]+)\s*;/g, (m, type, varName) => {
+            const cleanType = type.split('<')[0];
+            if (keywords.has(cleanType) || varName === 'out') return m;
+            return `let ${varName};`;
+        });
+
+        // Dịch length() trên chuỗi Java sang length trong JS
+        tText = tText.replace(/\.length\s*\(\s*\)/g, '.length');
+
+        return tText;
+    }
+
+    const processedBlocks = blocks.map(block => {
+        if (block.type === 'top') {
+            let content = block.content;
+            const methodRegex = /\b(?:(?:public|private|protected|static|final|synchronized|void|[\w_$<>[\].?]+)\s+)*([\w_$]+)\s*\(([^)]*)\)\s*\{/g;
+            let mMatch;
+            let lastMIdx = 0;
+            let newContent = "";
+            
+            while ((mMatch = methodRegex.exec(content)) !== null) {
+                const startIdx = mMatch.index;
+                const methodName = mMatch[1];
+                const paramsStr = mMatch[2];
+                if (['if', 'while', 'for', 'switch', 'catch'].includes(methodName)) {
+                    newContent += content.substring(lastMIdx, methodRegex.lastIndex);
+                    lastMIdx = methodRegex.lastIndex;
+                    continue;
+                }
+                const openBraceIdx = content.indexOf('{', startIdx);
+                if (openBraceIdx !== -1) {
+                    let braceCount = 1;
+                    let endIdx = -1;
+                    for (let i = openBraceIdx + 1; i < content.length; i++) {
+                        if (content[i] === '{') braceCount++;
+                        else if (content[i] === '}') braceCount--;
+                        if (braceCount === 0) {
+                            endIdx = i;
+                            break;
+                        }
+                    }
+                    if (endIdx !== -1) {
+                        newContent += content.substring(lastMIdx, startIdx);
+                        let methodBody = content.substring(openBraceIdx + 1, endIdx);
+                        methodBody = translateVarDeclarations(methodBody);
+                        
+                        const cleanedParams = cleanParams(paramsStr);
+                        newContent += `function ${methodName}(${cleanedParams}) {${methodBody}}`;
+                        lastMIdx = endIdx + 1;
+                        methodRegex.lastIndex = lastMIdx;
+                    }
+                }
+            }
+            if (lastMIdx < content.length) {
+                newContent += content.substring(lastMIdx);
+            }
+            // Chạy translateVarDeclarations cho cả khối top-level bên ngoài các hàm
+            return translateVarDeclarations(newContent);
+        } else {
+            let content = block.content;
+            const className = block.className;
+            const openBraceIdx = content.indexOf('{');
+            const classHeader = content.substring(0, openBraceIdx + 1);
+            const classBody = content.substring(openBraceIdx + 1, content.length - 1);
+            
+            const methodRegex = /\b(?:(?:public|private|protected|static|final|synchronized|void|[\w_$<>[\].?]+)\s+)*([\w_$]+)\s*\(([^)]*)\)\s*\{/g;
+            let mMatch;
+            let lastMIdx = 0;
+            let newBody = "";
+            
+            while ((mMatch = methodRegex.exec(classBody)) !== null) {
+                const startIdx = mMatch.index;
+                const methodName = mMatch[1];
+                const paramsStr = mMatch[2];
+                if (['if', 'while', 'for', 'switch', 'catch'].includes(methodName)) {
+                    newBody += classBody.substring(lastMIdx, methodRegex.lastIndex);
+                    lastMIdx = methodRegex.lastIndex;
+                    continue;
+                }
+                const openBraceIdx = classBody.indexOf('{', startIdx);
+                if (openBraceIdx !== -1) {
+                    let braceCount = 1;
+                    let endIdx = -1;
+                    for (let i = openBraceIdx + 1; i < classBody.length; i++) {
+                        if (classBody[i] === '{') braceCount++;
+                        else if (classBody[i] === '}') braceCount--;
+                        if (braceCount === 0) {
+                            endIdx = i;
+                            break;
+                        }
+                    }
+                    if (endIdx !== -1) {
+                        let fieldsText = classBody.substring(lastMIdx, startIdx);
+                        fieldsText = fieldsText.replace(/\b([\w_$<>]+)\s+([\w_$]+)\s*=/g, (m, type, varName) => {
+                            if (keywords.has(type)) return m;
+                            return `${varName} =`;
+                        });
+                        fieldsText = fieldsText.replace(/\b([\w_$<>]+)\s+([\w_$]+)\s*;/g, (m, type, varName) => {
+                            if (keywords.has(type)) return m;
+                            return `${varName};`;
+                        });
+                        newBody += fieldsText;
+                        
+                        let methodBody = classBody.substring(openBraceIdx + 1, endIdx);
+                        methodBody = translateVarDeclarations(methodBody);
+                        
+                        const cleanedParams = cleanParams(paramsStr);
+                        const isConstructor = (methodName === className);
+                        const jsMethodName = isConstructor ? 'constructor' : methodName;
+                        
+                        newBody += `${jsMethodName}(${cleanedParams}) {${methodBody}}`;
+                        lastMIdx = endIdx + 1;
+                        methodRegex.lastIndex = lastMIdx;
+                    }
+                }
+            }
+            if (lastMIdx < classBody.length) {
+                let fieldsText = classBody.substring(lastMIdx);
+                fieldsText = fieldsText.replace(/\b([\w_$<>]+)\s+([\w_$]+)\s*=/g, (m, type, varName) => {
+                    if (keywords.has(type)) return m;
+                    return `${varName} =`;
+                });
+                fieldsText = fieldsText.replace(/\b([\w_$<>]+)\s+([\w_$]+)\s*;/g, (m, type, varName) => {
+                    if (keywords.has(type)) return m;
+                    return `${varName};`;
+                });
+                newBody += fieldsText;
+            }
+            
+            return classHeader + newBody + '}';
+        }
+    });
+
+    let codeToRun = polyfills + '\n' + processedBlocks.join('\n');
+    codeToRun += `\nif (typeof main !== 'undefined') { main(); }\n`;
+
+    // Phục hồi các chuỗi ký tự ban đầu từ các placeholder
+    for (let i = stringLiterals.length - 1; i >= 0; i--) {
+        codeToRun = codeToRun.split(stringLiterals[i].placeholder).join(stringLiterals[i].original);
+    }
     
     // Môi trường chạy ảo
     const runEnv = {

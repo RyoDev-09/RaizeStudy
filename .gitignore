@@ -1,5 +1,6 @@
 # Dependency directories
 node_modules/
+**/node_modules/
 
 # Environment variables
 .env
@@ -10,6 +11,12 @@ node_modules/
 
 # Java compiled files
 *.class
+target/
+**/target/
+
+# Frontend builds
+dist/
+**/dist/
 
 # IDE files
 .vscode/
@@ -19,3 +26,4 @@ node_modules/
 *.njsproj
 *.sln
 *.sw?
+

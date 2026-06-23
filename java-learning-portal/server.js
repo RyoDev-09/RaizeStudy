@@ -194,7 +194,7 @@ app.get('/api/progress', authenticateToken, async (req, res) => {
         const completedExercises = [];
         const userCodes = {};
 
-        progressRows = exerciseProgress.forEach(row => {
+        exerciseProgress.forEach(row => {
             if (row.completed) {
                 completedExercises.push(row.exercise_id);
             }

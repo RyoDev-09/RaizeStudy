@@ -67,23 +67,11 @@ async function initializeDatabase() {
 
     await connection.query(`USE \`${dbName}\`;`);
 
-    // Dọn dẹp bảng cũ theo thứ tự khóa ngoại
-    console.log('🗑️  Đang dọn dẹp các bảng cũ...');
-    await connection.query('SET FOREIGN_KEY_CHECKS = 0;');
-    await connection.query('DROP TABLE IF EXISTS `user_settings`;');
-    await connection.query('DROP TABLE IF EXISTS `user_exercise_progress`;');
-    await connection.query('DROP TABLE IF EXISTS `user_lesson_progress`;');
-    await connection.query('DROP TABLE IF EXISTS `user_progress`;');
-    await connection.query('DROP TABLE IF EXISTS `quizzes`;');
-    await connection.query('DROP TABLE IF EXISTS `exercises`;');
-    await connection.query('DROP TABLE IF EXISTS `lessons`;');
-    await connection.query('DROP TABLE IF EXISTS `users`;');
-    await connection.query('SET FOREIGN_KEY_CHECKS = 1;');
-
+    console.log('🛠️  Đang tạo/xác nhận các bảng dữ liệu nếu chưa tồn tại...');
+    
     // 1. Tạo bảng users
-    console.log('🛠️  Đang tạo bảng `users`...');
     await connection.query(`
-        CREATE TABLE \`users\` (
+        CREATE TABLE IF NOT EXISTS \`users\` (
             \`id\` INT AUTO_INCREMENT PRIMARY KEY,
             \`username\` VARCHAR(255) UNIQUE NOT NULL,
             \`password\` VARCHAR(255) NOT NULL,
@@ -91,10 +79,9 @@ async function initializeDatabase() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
-    // 2. Tạo bảng lessons (Loại bỏ các cột practice cũ)
-    console.log('🛠️  Đang tạo bảng \`lessons\`...');
+    // 2. Tạo bảng lessons
     await connection.query(`
-        CREATE TABLE \`lessons\` (
+        CREATE TABLE IF NOT EXISTS \`lessons\` (
             \`id\` INT PRIMARY KEY,
             \`title\` VARCHAR(255) NOT NULL,
             \`phase\` VARCHAR(255) NOT NULL,
@@ -106,11 +93,10 @@ async function initializeDatabase() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
-    // 3. Tạo bảng exercises (Bài tập thực hành tương tác)
-    console.log('🛠️  Đang tạo bảng \`exercises\`...');
+    // 3. Tạo bảng exercises (Bài tập thực hành tương tác có ID ổn định)
     await connection.query(`
-        CREATE TABLE \`exercises\` (
-            \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+        CREATE TABLE IF NOT EXISTS \`exercises\` (
+            \`id\` INT PRIMARY KEY,
             \`lesson_id\` INT NOT NULL,
             \`title\` VARCHAR(255) NOT NULL,
             \`instructions\` MEDIUMTEXT NOT NULL,
@@ -122,9 +108,8 @@ async function initializeDatabase() {
     `);
 
     // 4. Tạo bảng quizzes
-    console.log('🛠️  Đang tạo bảng \`quizzes\`...');
     await connection.query(`
-        CREATE TABLE \`quizzes\` (
+        CREATE TABLE IF NOT EXISTS \`quizzes\` (
             \`id\` INT AUTO_INCREMENT PRIMARY KEY,
             \`lesson_id\` INT NOT NULL,
             \`question\` TEXT NOT NULL,
@@ -137,9 +122,8 @@ async function initializeDatabase() {
     `);
 
     // 5. Tạo bảng user_lesson_progress (Đánh giá hoàn thành lý thuyết bài học)
-    console.log('🛠️  Đang tạo bảng \`user_lesson_progress\`...');
     await connection.query(`
-        CREATE TABLE \`user_lesson_progress\` (
+        CREATE TABLE IF NOT EXISTS \`user_lesson_progress\` (
             \`user_id\` INT NOT NULL,
             \`lesson_id\` INT NOT NULL,
             \`completed\` BOOLEAN DEFAULT FALSE,
@@ -151,9 +135,8 @@ async function initializeDatabase() {
     `);
 
     // 6. Tạo bảng user_exercise_progress (Lưu code và hoàn thành từng bài tập thực hành con)
-    console.log('🛠️  Đang tạo bảng \`user_exercise_progress\`...');
     await connection.query(`
-        CREATE TABLE \`user_exercise_progress\` (
+        CREATE TABLE IF NOT EXISTS \`user_exercise_progress\` (
             \`user_id\` INT NOT NULL,
             \`exercise_id\` INT NOT NULL,
             \`completed\` BOOLEAN DEFAULT FALSE,
@@ -166,9 +149,8 @@ async function initializeDatabase() {
     `);
 
     // 7. Tạo bảng user_settings
-    console.log('🛠️  Đang tạo bảng \`user_settings\`...');
     await connection.query(`
-        CREATE TABLE \`user_settings\` (
+        CREATE TABLE IF NOT EXISTS \`user_settings\` (
             \`user_id\` INT PRIMARY KEY,
             \`last_lesson_id\` INT NOT NULL,
             \`last_exercise_id\` INT,
@@ -187,6 +169,12 @@ async function initializeDatabase() {
             INSERT INTO \`lessons\` (
                 \`id\`, \`title\`, \`phase\`, \`time\`, \`difficulty\`, \`theory\`
             ) VALUES (?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                \`title\` = VALUES(\`title\`),
+                \`phase\` = VALUES(\`phase\`),
+                \`time\` = VALUES(\`time\`),
+                \`difficulty\` = VALUES(\`difficulty\`),
+                \`theory\` = VALUES(\`theory\`)
         `, [
             lesson.id,
             lesson.title,
@@ -195,6 +183,9 @@ async function initializeDatabase() {
             lesson.difficulty,
             lesson.theory
         ]);
+
+        // Dọn dẹp quiz cũ của bài học này để tránh trùng lặp
+        await connection.query('DELETE FROM `quizzes` WHERE `lesson_id` = ?', [lesson.id]);
 
         if (lesson.quizzes && lesson.quizzes.length > 0) {
             for (const quiz of lesson.quizzes) {
@@ -215,14 +206,22 @@ async function initializeDatabase() {
 
     console.log(`💾 Đang nạp ${exercisesData.length} bài tập thực hành tương tác (5 bài/bài học)...`);
     
-    // Nạp dữ liệu bài tập thực hành vào bảng exercises
+    // Nạp dữ liệu bài tập thực hành vào bảng exercises (Sử dụng ON DUPLICATE KEY UPDATE để giữ nguyên tiến độ)
     for (const ex of exercisesData) {
         const validateStr = generateValidateStr(ex);
         await connection.query(`
             INSERT INTO \`exercises\` (
-                \`lesson_id\`, \`title\`, \`instructions\`, \`file_name\`, \`starter_code\`, \`validate_str\`
-            ) VALUES (?, ?, ?, ?, ?, ?)
+                \`id\`, \`lesson_id\`, \`title\`, \`instructions\`, \`file_name\`, \`starter_code\`, \`validate_str\`
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                \`lesson_id\` = VALUES(\`lesson_id\`),
+                \`title\` = VALUES(\`title\`),
+                \`instructions\` = VALUES(\`instructions\`),
+                \`file_name\` = VALUES(\`file_name\`),
+                \`starter_code\` = VALUES(\`starter_code\`),
+                \`validate_str\` = VALUES(\`validate_str\`)
         `, [
+            ex.id,
             ex.lessonId,
             ex.title,
             ex.instructions,
@@ -230,6 +229,17 @@ async function initializeDatabase() {
             ex.starterCode,
             validateStr
         ]);
+    }
+
+    // Dọn dẹp bài học / bài tập đã bị xóa khỏi file cấu hình cục bộ
+    const activeLessonIds = lessonsData.map(l => l.id);
+    if (activeLessonIds.length > 0) {
+        await connection.query('DELETE FROM `lessons` WHERE `id` NOT IN (?)', [activeLessonIds]);
+    }
+
+    const activeExerciseIds = exercisesData.map(ex => ex.id);
+    if (activeExerciseIds.length > 0) {
+        await connection.query('DELETE FROM `exercises` WHERE `id` NOT IN (?)', [activeExerciseIds]);
     }
 
     console.log(`✨ Đã nạp thành công ${lessonsData.length} bài học, ${exercisesData.length} bài tập thực hành con và câu hỏi trắc nghiệm!`);

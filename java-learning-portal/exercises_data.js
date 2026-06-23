@@ -4,8 +4,10 @@
 const exercises = [];
 
 // Helper để nhanh chóng định nghĩa bài tập
+let exIdCounter = 1;
 function addEx(lessonId, title, fileName, instructions, starterCode, spec) {
     exercises.push({
+        id: exIdCounter++,
         lessonId,
         title,
         fileName,

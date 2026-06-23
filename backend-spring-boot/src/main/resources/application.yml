@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:raize_study}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&useUnicode=yes&characterEncoding=UTF-8
+    username: ${DB_USER:root}
+    password: ${DB_PASS:123456}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    show-sql: false
+
+# JWT Configuration Properties
+app:
+  jwtSecret: raize_study_jwt_secret_key_2026_raize_study_jwt_secret_key_2026
+  jwtExpirationMs: 604800000 # 7 days (7 * 24 * 60 * 60 * 1000)
