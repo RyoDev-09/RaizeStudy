@@ -13,7 +13,7 @@ marked.setOptions({
 const handleEditorDidMount = (editor, monaco) => {
     if (!monaco) return;
     
-    // Đăng ký các snippet gợi ý cho Java
+    // Đăng ký các gợi ý tự động cho Java
     if (!window.monacoJavaRegistered) {
         window.monacoJavaRegistered = true;
         try {
@@ -26,7 +26,30 @@ const handleEditorDidMount = (editor, monaco) => {
                         startColumn: word.startColumn,
                         endColumn: word.endColumn
                     };
-                    const suggestions = [
+                    
+                    // Trích xuất các từ trong văn bản để tự động gợi ý biến/hàm/lớp do người dùng định nghĩa
+                    const text = model.getValue();
+                    const words = Array.from(new Set(text.match(/\b[a-zA-Z_]\w*\b/g) || []));
+                    
+                    const javaKeywords = new Set([
+                        'public', 'private', 'protected', 'class', 'interface', 'extends', 'implements',
+                        'import', 'package', 'void', 'int', 'double', 'float', 'long', 'short', 'byte',
+                        'char', 'boolean', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break',
+                        'continue', 'return', 'new', 'this', 'super', 'static', 'final', 'const', 'true',
+                        'false', 'null', 'try', 'catch', 'finally', 'throw', 'throws'
+                    ]);
+
+                    const wordSuggestions = words
+                        .filter(w => !javaKeywords.has(w) && w !== word.word && w.length >= 2)
+                        .map(w => ({
+                            label: w,
+                            kind: monaco.languages.CompletionItemKind.Variable,
+                            documentation: 'Ký hiệu/Biến/Hàm tự định nghĩa',
+                            insertText: w,
+                            range: range
+                        }));
+
+                    const snippets = [
                         {
                             label: 'psvm',
                             kind: monaco.languages.CompletionItemKind.Snippet,
@@ -84,7 +107,7 @@ const handleEditorDidMount = (editor, monaco) => {
                             range: range
                         }
                     ];
-                    return { suggestions };
+                    return { suggestions: [...snippets, ...wordSuggestions] };
                 }
             });
         } catch (e) {
@@ -105,7 +128,29 @@ const handleEditorDidMount = (editor, monaco) => {
                         startColumn: word.startColumn,
                         endColumn: word.endColumn
                     };
-                    const suggestions = [
+                    
+                    // Trích xuất các từ trong văn bản để tự động gợi ý bảng/cột
+                    const text = model.getValue();
+                    const words = Array.from(new Set(text.match(/\b[a-zA-Z_]\w*\b/g) || []));
+                    
+                    const sqlKeywords = new Set([
+                        'select', 'from', 'where', 'insert', 'into', 'values', 'update', 'set',
+                        'delete', 'join', 'on', 'left', 'right', 'inner', 'outer', 'group', 'by',
+                        'order', 'limit', 'having', 'and', 'or', 'not', 'null', 'as', 'create',
+                        'table', 'primary', 'key', 'foreign', 'references'
+                    ]);
+
+                    const wordSuggestions = words
+                        .filter(w => !sqlKeywords.has(w.toLowerCase()) && w !== word.word && w.length >= 2)
+                        .map(w => ({
+                            label: w,
+                            kind: monaco.languages.CompletionItemKind.Field,
+                            documentation: 'Bảng/Cột/Giá trị tự định nghĩa',
+                            insertText: w,
+                            range: range
+                        }));
+
+                    const snippets = [
                         {
                             label: 'select',
                             kind: monaco.languages.CompletionItemKind.Snippet,
@@ -139,7 +184,7 @@ const handleEditorDidMount = (editor, monaco) => {
                             range: range
                         }
                     ];
-                    return { suggestions };
+                    return { suggestions: [...snippets, ...wordSuggestions] };
                 }
             });
         } catch (e) {
