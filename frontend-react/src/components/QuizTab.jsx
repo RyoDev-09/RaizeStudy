@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useCourse } from '../context/CourseContext';
+import { useAuth } from '../context/AuthContext';
 import { HelpCircle, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const QuizTab = () => {
     const { currentLesson, mentorSpeak } = useCourse();
+    const { user } = useAuth();
     const quizzes = currentLesson ? currentLesson.quizzes || [] : [];
+
+    const username = user ? user.username : 'guest';
+    const storageKey = `raize_quiz_state_${username}_l${currentLesson ? currentLesson.id : 0}`;
 
     const [activeIdx, setActiveIdx] = useState(0);
     const [selectedAns, setSelectedAns] = useState(null);
@@ -12,14 +17,43 @@ const QuizTab = () => {
     const [showNext, setShowNext] = useState(false);
     const [quizCompleted, setQuizCompleted] = useState(false);
 
-    // Reset state khi đổi bài học
+    // Reset state và load dữ liệu từ LocalStorage khi đổi bài học / đổi user
     useEffect(() => {
-        setActiveIdx(0);
-        setSelectedAns(null);
-        setCorrectCount(0);
-        setShowNext(false);
-        setQuizCompleted(false);
-    }, [currentLesson ? currentLesson.id : 0]);
+        let initialState = {
+            activeIdx: 0,
+            selectedAns: null,
+            correctCount: 0,
+            showNext: false,
+            quizCompleted: false
+        };
+        try {
+            const savedState = localStorage.getItem(storageKey);
+            if (savedState) {
+                initialState = JSON.parse(savedState);
+            }
+        } catch (e) {
+            console.error("Lỗi đọc trạng thái trắc nghiệm:", e);
+        }
+        
+        setActiveIdx(initialState.activeIdx ?? 0);
+        setSelectedAns(initialState.selectedAns ?? null);
+        setCorrectCount(initialState.correctCount ?? 0);
+        setShowNext(initialState.showNext ?? false);
+        setQuizCompleted(initialState.quizCompleted ?? false);
+    }, [currentLesson ? currentLesson.id : 0, username, storageKey]);
+
+    // Tự động lưu trạng thái vào LocalStorage khi bất kỳ giá trị nào thay đổi
+    useEffect(() => {
+        if (!currentLesson) return;
+        const stateToSave = {
+            activeIdx,
+            selectedAns,
+            correctCount,
+            showNext,
+            quizCompleted
+        };
+        localStorage.setItem(storageKey, JSON.stringify(stateToSave));
+    }, [activeIdx, selectedAns, correctCount, showNext, quizCompleted, storageKey, currentLesson]);
 
     if (quizzes.length === 0) {
         return (
@@ -67,6 +101,12 @@ const QuizTab = () => {
         setCorrectCount(0);
         setShowNext(false);
         setQuizCompleted(false);
+
+        // Xóa khỏi LocalStorage
+        try {
+            localStorage.removeItem(storageKey);
+        } catch (e) {}
+
         mentorSpeak("Bắt đầu ôn tập trắc nghiệm lại nhé. Cố gắng đạt điểm số tối đa!");
     };
 
