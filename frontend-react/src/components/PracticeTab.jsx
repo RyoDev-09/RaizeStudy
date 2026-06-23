@@ -6,6 +6,144 @@ import { runCodeEnv } from '../utils/JavaEngine';
 import confetti from 'canvas-confetti';
 import { FileText, FileCode, RotateCcw, Play, CheckSquare, Terminal } from 'lucide-react';
 
+const handleEditorDidMount = (editor, monaco) => {
+    if (!monaco) return;
+    
+    // Đăng ký các snippet gợi ý cho Java
+    if (!window.monacoJavaRegistered) {
+        window.monacoJavaRegistered = true;
+        try {
+            monaco.languages.registerCompletionItemProvider('java', {
+                provideCompletionItems: (model, position) => {
+                    const word = model.getWordUntilPosition(position);
+                    const range = {
+                        startLineNumber: position.lineNumber,
+                        endLineNumber: position.lineNumber,
+                        startColumn: word.startColumn,
+                        endColumn: word.endColumn
+                    };
+                    const suggestions = [
+                        {
+                            label: 'psvm',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'public static void main(String[] args)',
+                            insertText: 'public static void main(String[] args) {\n    $0\n}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        },
+                        {
+                            label: 'sout',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'System.out.println()',
+                            insertText: 'System.out.println($0);',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        },
+                        {
+                            label: 'sysout',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'System.out.println()',
+                            insertText: 'System.out.println($0);',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        },
+                        {
+                            label: 'fori',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'for (int i = 0; i < max; i++)',
+                            insertText: 'for (int i = 0; i < $1; i++) {\n    $0\n}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        },
+                        {
+                            label: 'ifelse',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'if-else block',
+                            insertText: 'if ($1) {\n    $2\n} else {\n    $0\n}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        },
+                        {
+                            label: 'scanner',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'Scanner scanner = new Scanner(System.in)',
+                            insertText: 'Scanner scanner = new Scanner(System.in);',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        },
+                        {
+                            label: 'list',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'List<Type> name = new ArrayList<>()',
+                            insertText: 'List<$1> list = new ArrayList<>();',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        }
+                    ];
+                    return { suggestions };
+                }
+            });
+        } catch (e) {
+            console.error("Lỗi khi đăng ký Java completion provider:", e);
+        }
+    }
+
+    // Đăng ký các snippet gợi ý cho SQL
+    if (!window.monacoSqlRegistered) {
+        window.monacoSqlRegistered = true;
+        try {
+            monaco.languages.registerCompletionItemProvider('sql', {
+                provideCompletionItems: (model, position) => {
+                    const word = model.getWordUntilPosition(position);
+                    const range = {
+                        startLineNumber: position.lineNumber,
+                        endLineNumber: position.lineNumber,
+                        startColumn: word.startColumn,
+                        endColumn: word.endColumn
+                    };
+                    const suggestions = [
+                        {
+                            label: 'select',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'SELECT statement',
+                            insertText: 'SELECT * FROM $1;',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        },
+                        {
+                            label: 'insert',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'INSERT INTO statement',
+                            insertText: 'INSERT INTO $1 ($2) VALUES ($3);',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        },
+                        {
+                            label: 'update',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'UPDATE statement',
+                            insertText: 'UPDATE $1 SET $2 = $3 WHERE $4;',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        },
+                        {
+                            label: 'delete',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            documentation: 'DELETE statement',
+                            insertText: 'DELETE FROM $1 WHERE $2;',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: range
+                        }
+                    ];
+                    return { suggestions };
+                }
+            });
+        } catch (e) {
+            console.error("Lỗi khi đăng ký SQL completion provider:", e);
+        }
+    }
+};
+
 // Cấu hình SQLite WASM
 let SQL = null;
 let dbInstance = null;
@@ -509,6 +647,7 @@ const PracticeTab = () => {
                                 theme="vs-dark"
                                 value={editorCode}
                                 onChange={handleCodeChange}
+                                onMount={handleEditorDidMount}
                                 options={{
                                     fontSize: 14,
                                     fontFamily: "'Fira Code', monospace",
@@ -519,7 +658,16 @@ const PracticeTab = () => {
                                     scrollbar: {
                                         verticalScrollbarSize: 10,
                                         horizontalScrollbarSize: 10
-                                    }
+                                    },
+                                    quickSuggestions: {
+                                        other: true,
+                                        comments: false,
+                                        strings: false
+                                    },
+                                    wordBasedSuggestions: "currentDocument",
+                                    suggestOnTriggerCharacters: true,
+                                    acceptSuggestionOnEnter: "on",
+                                    tabCompletion: "on"
                                 }}
                             />
                         </div>
