@@ -605,16 +605,24 @@ const PracticeTab = () => {
                     // Chấm bài Java
                     const res = runCodeEnv(editorCode);
                     
-                    if (geminiApiKey) {
-                        setTerminalOutput([{ type: 'system', text: 'AI Reviewer đang tiến hành kiểm thử và đánh giá bài làm của bạn...' }]);
-                        try {
-                            const requestBody = {
-                                contents: [
-                                    {
-                                        role: 'user',
-                                        parts: [
-                                            {
-                                                text: `Bạn là AI Code Reviewer cho các bài tập Java cơ bản.
+                    if (!geminiApiKey) {
+                        setTerminalOutput([
+                            { type: 'error', text: '⚠️ [Yêu cầu bắt buộc]: Dự án đã chuyển sang chế độ AI Reviewer bắt buộc cho các bài tập Java.\n\nVui lòng nhấp vào nút "AI Reviewer" ở thanh công cụ Terminal phía trên để cấu hình Gemini API Key trước khi nộp bài!' }
+                        ]);
+                        mentorSpeak("Hãy cấu hình Gemini API Key trước khi nộp bài nhé em!");
+                        setIsRunning(false);
+                        return;
+                    }
+
+                    setTerminalOutput([{ type: 'system', text: 'AI Reviewer đang tiến hành kiểm thử và đánh giá bài làm của bạn...' }]);
+                    try {
+                        const requestBody = {
+                            contents: [
+                                {
+                                    role: 'user',
+                                    parts: [
+                                        {
+                                            text: `Bạn là AI Code Reviewer cho các bài tập Java cơ bản.
 
 Mỗi khi người dùng gửi đề bài và code, hãy làm theo quy trình bắt buộc:
 
@@ -687,100 +695,57 @@ ${editorCode}
 KẾT QUẢ CHẠY THỬ MÔ PHỎNG (NẾU CÓ):
 ${res.output || 'Không có output'}
 `
-                                            }
-                                        ]
-                                    }
-                                ],
-                                generationConfig: {
-                                    temperature: 0.1
+                                        }
+                                    ]
                                 }
-                            };
-
-                            const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(requestBody)
-                            });
-
-                            if (!apiRes.ok) {
-                                const errData = await apiRes.json().catch(() => ({}));
-                                throw new Error(errData.error?.message || `API trả về status ${apiRes.status}`);
+                            ],
+                            generationConfig: {
+                                temperature: 0.1
                             }
+                        };
 
-                            const resData = await apiRes.json();
-                            if (!resData.candidates || resData.candidates.length === 0) {
-                                throw new Error("Không có phản hồi từ AI model.");
-                            }
-                            const aiResponse = resData.candidates[0].content.parts[0].text;
+                        const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestBody)
+                        });
 
-                            // Phân tích đánh giá từ AI
-                            const firstLines = aiResponse.split('\n').slice(0, 10).join('\n');
-                            const isPass = /-\s*PASS/i.test(firstLines) || (/\bPASS\b/i.test(firstLines) && !/\bFAIL\b/i.test(firstLines));
-
-                            setTerminalOutput([
-                                { type: 'markdown', text: aiResponse }
-                            ]);
-
-                            if (isPass) {
-                                if (!completedExercises.has(activeExercise.id)) {
-                                    completeExercise(activeExercise.id, true);
-                                }
-                                mentorSpeak("Thầy chúc mừng em! AI Code Reviewer đánh giá bài làm của em đạt yêu cầu (<b>PASS</b>)!");
-                                triggerConfettiEffect();
-                            } else {
-                                mentorSpeak("Chưa đạt rồi em ơi. AI Code Reviewer đánh giá bài làm chưa đạt (<b>FAIL</b>). Hãy xem kỹ lỗi phát hiện và chỉnh sửa lại nhé!");
-                            }
-                            setIsRunning(false);
-                            return;
-                        } catch (aiErr) {
-                            console.error("Lỗi AI chấm điểm:", aiErr);
-                            setTerminalOutput([
-                                { type: 'error', text: `⚠️ [Lỗi AI]: Chuyển sang chấm điểm dự phòng.\nChi tiết: ${aiErr.message}` }
-                            ]);
+                        if (!apiRes.ok) {
+                            const errData = await apiRes.json().catch(() => ({}));
+                            throw new Error(errData.error?.message || `API trả về status ${apiRes.status}`);
                         }
-                    }
 
-                    // Bộ chấm điểm dự phòng (Fallback) khi không cấu hình API Key hoặc AI lỗi
-                    if (!res.success) {
-                        setTerminalOutput([{ type: 'error', text: `[Thất bại]: Code bị lỗi biên dịch, không thể chạy test suite.\n${res.output}` }]);
-                        mentorSpeak("Không thể chấm điểm vì code của em không biên dịch được. Sửa hết các lỗi đỏ đã nhé!");
-                        setIsRunning(false);
-                        return;
-                    }
+                        const resData = await apiRes.json();
+                        if (!resData.candidates || resData.candidates.length === 0) {
+                            throw new Error("Không có phản hồi từ AI model.");
+                        }
+                        const aiResponse = resData.candidates[0].content.parts[0].text;
 
-                    let testResult = { pass: false, msg: "Lỗi cấu hình test case." };
-                    try {
-                        const validateFn = new Function('code', 'output', `return (${activeExercise.validateStr})(code, output);`);
-                        testResult = validateFn(editorCode, res.output);
-                    } catch (e) {
-                        console.error("Lỗi chạy validator Java:", e);
-                        testResult = { pass: false, msg: "Hệ thống test case bị lỗi cú pháp." };
-                    }
+                        // Phân tích đánh giá từ AI
+                        const firstLines = aiResponse.split('\n').slice(0, 10).join('\n');
+                        const isPass = /-\s*PASS/i.test(firstLines) || (/\bPASS\b/i.test(firstLines) && !/\bFAIL\b/i.test(firstLines));
 
-                    const lines = (res.output || '')
-                        .split('\n')
-                        .filter(l => l.length > 0 || res.output.indexOf(l) === res.output.length - 1);
-                    const out = lines.map(l => ({ type: 'output', text: l }));
-
-                    if (testResult.pass) {
                         setTerminalOutput([
-                            ...out,
-                            { type: 'success', text: `>> CHÚC MỪNG: Vượt qua tất cả test cases! [100/100]\n>> Báo cáo: ${testResult.msg}` }
+                            { type: 'markdown', text: aiResponse }
                         ]);
 
-                        if (!completedExercises.has(activeExercise.id)) {
-                            completeExercise(activeExercise.id, true);
+                        if (isPass) {
+                            if (!completedExercises.has(activeExercise.id)) {
+                                completeExercise(activeExercise.id, true);
+                            }
+                            mentorSpeak("Thầy chúc mừng em! AI Code Reviewer đánh giá bài làm của em đạt yêu cầu (<b>PASS</b>)!");
+                            triggerConfettiEffect();
+                        } else {
+                            mentorSpeak("Chưa đạt rồi em ơi. AI Code Reviewer đánh giá bài làm chưa đạt (<b>FAIL</b>). Hãy xem kỹ lỗi phát hiện và chỉnh sửa lại nhé!");
                         }
-                        mentorSpeak(`Thầy chúc mừng em! <b>${testResult.msg}</b> Thách thức đã hoàn thành xuất sắc!`);
-                        triggerConfettiEffect();
-                    } else {
+                    } catch (aiErr) {
+                        console.error("Lỗi AI chấm điểm:", aiErr);
                         setTerminalOutput([
-                            ...out,
-                            { type: 'error', text: `>> THẤT BẠI: Test case không đạt!\nLý do: ${testResult.msg}` }
+                            { type: 'error', text: `❌ [Lỗi AI]: Không thể hoàn thành chấm bài qua AI.\nChi tiết lỗi: ${aiErr.message}` }
                         ]);
-                        mentorSpeak(`Chưa đạt rồi em ơi. Gợi ý: <i>${testResult.msg}</i>. Đọc kỹ yêu cầu và thử lại nhé!`);
+                        mentorSpeak("Đã xảy ra lỗi kết nối với AI Reviewer. Vui lòng kiểm tra lại API Key hoặc kết nối mạng!");
                     }
                 }
             } catch (err) {
