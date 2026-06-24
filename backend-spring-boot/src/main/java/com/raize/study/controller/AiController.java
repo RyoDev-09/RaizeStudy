@@ -15,6 +15,9 @@ public class AiController {
     @Value("${app.geminiApiKey:}")
     private String geminiApiKey;
 
+    @Value("${app.geminiModel:gemini-flash-lite-latest}")
+    private String geminiModel;
+
     private final RestClient restClient = RestClient.create();
 
     public record ReviewRequest(String code, String output, String instructions) {}
@@ -131,7 +134,7 @@ public class AiController {
             );
 
             // Call Gemini API
-            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + geminiApiKey;
+            String url = "https://generativelanguage.googleapis.com/v1beta/models/" + geminiModel + ":generateContent?key=" + geminiApiKey;
             GeminiResponse geminiRes = restClient.post()
                     .uri(url)
                     .body(geminiReq)
@@ -151,7 +154,13 @@ public class AiController {
 
             return ResponseEntity.ok(new ReviewResponse(isPass, aiResponseText));
 
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            System.err.println("Gemini API Error details: " + e.getResponseBodyAsString());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi từ Gemini API: " + e.getResponseBodyAsString()));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Lỗi trong quá trình AI chấm điểm: " + e.getMessage()));
         }
