@@ -149,8 +149,26 @@ public class AiController {
             String aiResponseText = geminiRes.candidates().get(0).content().parts().get(0).text();
 
             // Phân tích xem PASS hay FAIL
-            String firstLines = aiResponseText.lines().limit(10).reduce("", (a, b) -> a + "\n" + b);
-            boolean isPass = firstLines.toLowerCase().contains("- pass");
+            boolean isPass = false;
+            int lineCount = 0;
+            for (String line : aiResponseText.split("\\r?\\n")) {
+                lineCount++;
+                if (lineCount > 15) break;
+                
+                String clean = line.replace("*", "").replace("#", "").replace("-", "").replace("+", "").trim().toLowerCase();
+                // Bỏ qua nếu dòng chứa từ phủ định hoặc thất bại
+                if (clean.contains("fail") || clean.contains("không") || clean.contains("trượt")) {
+                    continue;
+                }
+                
+                if (clean.equals("pass") || clean.startsWith("pass ") || clean.endsWith(" pass") ||
+                    clean.equals("đạt") || clean.startsWith("đạt ") || clean.endsWith(" đạt") ||
+                    clean.contains("đánh giá: pass") || clean.contains("đánh giá: đạt") ||
+                    clean.equals("ok") || clean.startsWith("ok ") || clean.endsWith(" ok")) {
+                    isPass = true;
+                    break;
+                }
+            }
 
             return ResponseEntity.ok(new ReviewResponse(isPass, aiResponseText));
 
