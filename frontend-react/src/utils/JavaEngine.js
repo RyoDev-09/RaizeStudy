@@ -47,6 +47,10 @@ export function runCodeEnv(javaCode) {
     js = js.replace(/System\.out\.println\s*\((.*?)\);/g, 'println($1);');
     js = js.replace(/System\.out\.print\s*\((.*?)\);/g, 'print($1);');
     js = js.replace(/System\.out\.printf\s*\((.*?)\);/g, 'printf($1);');
+    
+    // Dịch các phép ép kiểu Java (Casts) thành hàm JS
+    js = rewriteCasts(js);
+
 
     // Trích xuất các chuỗi ký tự (string literals) để không bị các regex dịch sai
     const stringLiterals = [];
@@ -358,14 +362,96 @@ export function runCodeEnv(javaCode) {
             this.str = "";
             this.append = function(x) { this.str += String(x); return this; };
             this.toString = function() { return this.str; };
+        },
+        byte: (x) => (x << 24) >> 24,
+        short: (x) => (x << 16) >> 16,
+        int: (x) => x | 0,
+        long: (x) => Number(x),
+        float: (x) => Math.fround(x),
+        double: (x) => Number(x),
+        char: (x) => {
+            if (typeof x === 'number') {
+                return String.fromCharCode(x & 0xffff);
+            }
+            const s = String(x);
+            return s ? s.charAt(0) : '';
         }
     };
     
     try {
-        const runner = new Function('print', 'println', 'printf', 'StringBuilder', codeToRun);
-        runner(runEnv.print, runEnv.println, runEnv.printf, runEnv.StringBuilder);
+        const runner = new Function(
+            'print', 'println', 'printf', 'StringBuilder', 
+            'byte', 'short', 'int', 'long', 'float', 'double', 'char', 
+            codeToRun
+        );
+        runner(
+            runEnv.print, runEnv.println, runEnv.printf, runEnv.StringBuilder,
+            runEnv.byte, runEnv.short, runEnv.int, runEnv.long, runEnv.float, runEnv.double, runEnv.char
+        );
         return { success: true, output: outputLines.join('') };
     } catch (err) {
         return { success: false, output: `[Lỗi biên dịch / Runtime Java]:\nLine: ${err.lineNumber || 'Unknown'} - ${err.message}` };
     }
 }
+
+function rewriteCasts(jsCode) {
+    const castRegex = /\b\(\s*(byte|short|int|long|float|double|char)\s*\)/g;
+    let result = jsCode;
+    const matches = [];
+    let match;
+    
+    while ((match = castRegex.exec(result)) !== null) {
+        matches.push({
+            index: match.index,
+            length: match[0].length,
+            type: match[1]
+        });
+    }
+    
+    for (let i = matches.length - 1; i >= 0; i--) {
+        const m = matches[i];
+        const castStart = m.index;
+        const castEnd = castStart + m.length;
+        
+        let scanIdx = castEnd;
+        while (scanIdx < result.length && /\s/.test(result[scanIdx])) {
+            scanIdx++;
+        }
+        
+        if (scanIdx >= result.length) continue;
+        
+        if (result[scanIdx] === '(') {
+            let parenCount = 1;
+            let exprStart = scanIdx + 1;
+            let exprEnd = -1;
+            for (let j = exprStart; j < result.length; j++) {
+                if (result[j] === '(') parenCount++;
+                else if (result[j] === ')') parenCount--;
+                if (parenCount === 0) {
+                    exprEnd = j;
+                    break;
+                }
+            }
+            if (exprEnd !== -1) {
+                const expr = result.substring(exprStart, exprEnd);
+                const before = result.substring(0, castStart);
+                const after = result.substring(exprEnd + 1);
+                result = before + `${m.type}(${expr})` + after;
+            }
+        } else {
+            const remaining = result.substring(scanIdx);
+            const termRegex = /^(?:[a-zA-Z_$][\w_$]*(?:\.[a-zA-Z_$][\w_$]*)*(?:\s*\([^)]*\))?|\d+(?:\.\d+)?)/;
+            const termMatch = termRegex.exec(remaining);
+            if (termMatch) {
+                const term = termMatch[0];
+                const termEnd = scanIdx + term.length;
+                const before = result.substring(0, castStart);
+                const after = result.substring(termEnd);
+                result = before + `${m.type}(${term})` + after;
+            }
+        }
+    }
+    
+    return result;
+}
+
