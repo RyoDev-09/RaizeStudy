@@ -27,16 +27,23 @@ const handleEditorDidMount = (editor, monaco) => {
                     const text = model.getValue();
                     const words = Array.from(new Set(text.match(/\b[a-zA-Z_]\w*\b/g) || []));
                     
-                    const javaKeywords = new Set([
+                    const javaKeywords = [
                         'public', 'private', 'protected', 'class', 'interface', 'extends', 'implements',
-                        'import', 'package', 'void', 'int', 'double', 'float', 'long', 'short', 'byte',
-                        'char', 'boolean', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break',
-                        'continue', 'return', 'new', 'this', 'super', 'static', 'final', 'const', 'true',
-                        'false', 'null', 'try', 'catch', 'finally', 'throw', 'throws'
-                    ]);
+                        'import', 'package', 'void', 'static', 'final', 'new', 'return', 'this', 'super',
+                        'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue',
+                        'try', 'catch', 'finally', 'throw', 'throws', 'const', 'true', 'false', 'null'
+                    ];
+
+                    const javaDataTypes = [
+                        'int', 'double', 'boolean', 'char', 'float', 'long', 'short', 'byte',
+                        'String', 'System', 'Scanner', 'List', 'ArrayList', 'Map', 'HashMap', 'Set', 'HashSet',
+                        'Integer', 'Double', 'Boolean', 'Character', 'Object'
+                    ];
+
+                    const javaKeywordsSet = new Set([...javaKeywords, ...javaDataTypes]);
 
                     const wordSuggestions = words
-                        .filter(w => !javaKeywords.has(w) && w !== word.word && w.length >= 2)
+                        .filter(w => !javaKeywordsSet.has(w) && w !== word.word && w.length >= 2)
                         .map(w => ({
                             label: w,
                             kind: monaco.languages.CompletionItemKind.Variable,
@@ -44,6 +51,22 @@ const handleEditorDidMount = (editor, monaco) => {
                             insertText: w,
                             range: range
                         }));
+
+                    const keywordSuggestions = javaKeywords.map(kw => ({
+                        label: kw,
+                        kind: monaco.languages.CompletionItemKind.Keyword,
+                        documentation: 'Từ khóa Java',
+                        insertText: kw,
+                        range: range
+                    }));
+
+                    const dataTypeSuggestions = javaDataTypes.map(dt => ({
+                        label: dt,
+                        kind: monaco.languages.CompletionItemKind.Class,
+                        documentation: 'Kiểu dữ liệu / Lớp Java',
+                        insertText: dt,
+                        range: range
+                    }));
 
                     const snippets = [
                         {
@@ -103,7 +126,8 @@ const handleEditorDidMount = (editor, monaco) => {
                             range: range
                         }
                     ];
-                    return { suggestions: [...snippets, ...wordSuggestions] };
+
+                    return { suggestions: [...snippets, ...keywordSuggestions, ...dataTypeSuggestions, ...wordSuggestions] };
                 }
             });
         } catch (e) {
@@ -129,15 +153,22 @@ const handleEditorDidMount = (editor, monaco) => {
                     const text = model.getValue();
                     const words = Array.from(new Set(text.match(/\b[a-zA-Z_]\w*\b/g) || []));
                     
-                    const sqlKeywords = new Set([
-                        'select', 'from', 'where', 'insert', 'into', 'values', 'update', 'set',
-                        'delete', 'join', 'on', 'left', 'right', 'inner', 'outer', 'group', 'by',
-                        'order', 'limit', 'having', 'and', 'or', 'not', 'null', 'as', 'create',
-                        'table', 'primary', 'key', 'foreign', 'references'
-                    ]);
+                    const sqlKeywords = [
+                        'SELECT', 'FROM', 'WHERE', 'INSERT', 'INTO', 'VALUES', 'UPDATE', 'SET',
+                        'DELETE', 'JOIN', 'ON', 'LEFT', 'RIGHT', 'INNER', 'OUTER', 'GROUP', 'BY',
+                        'ORDER', 'LIMIT', 'HAVING', 'AND', 'OR', 'NOT', 'NULL', 'AS', 'CREATE',
+                        'TABLE', 'PRIMARY', 'KEY', 'FOREIGN', 'REFERENCES'
+                    ];
+
+                    const sqlDataTypes = [
+                        'INT', 'INTEGER', 'VARCHAR', 'CHAR', 'TEXT', 'DATE', 'DATETIME', 'TIMESTAMP',
+                        'DECIMAL', 'NUMERIC', 'FLOAT', 'DOUBLE', 'BOOLEAN'
+                    ];
+
+                    const sqlKeywordsSet = new Set([...sqlKeywords, ...sqlDataTypes].map(kw => kw.toLowerCase()));
 
                     const wordSuggestions = words
-                        .filter(w => !sqlKeywords.has(w.toLowerCase()) && w !== word.word && w.length >= 2)
+                        .filter(w => !sqlKeywordsSet.has(w.toLowerCase()) && w !== word.word && w.length >= 2)
                         .map(w => ({
                             label: w,
                             kind: monaco.languages.CompletionItemKind.Field,
@@ -145,6 +176,22 @@ const handleEditorDidMount = (editor, monaco) => {
                             insertText: w,
                             range: range
                         }));
+
+                    const keywordSuggestions = sqlKeywords.map(kw => ({
+                        label: kw,
+                        kind: monaco.languages.CompletionItemKind.Keyword,
+                        documentation: 'Từ khóa SQL',
+                        insertText: kw,
+                        range: range
+                    }));
+
+                    const dataTypeSuggestions = sqlDataTypes.map(dt => ({
+                        label: dt,
+                        kind: monaco.languages.CompletionItemKind.Class,
+                        documentation: 'Kiểu dữ liệu SQL',
+                        insertText: dt,
+                        range: range
+                    }));
 
                     const snippets = [
                         {
@@ -180,7 +227,8 @@ const handleEditorDidMount = (editor, monaco) => {
                             range: range
                         }
                     ];
-                    return { suggestions: [...snippets, ...wordSuggestions] };
+
+                    return { suggestions: [...snippets, ...keywordSuggestions, ...dataTypeSuggestions, ...wordSuggestions] };
                 }
             });
         } catch (e) {
@@ -188,6 +236,7 @@ const handleEditorDidMount = (editor, monaco) => {
         }
     }
 };
+
 
 // Cấu hình SQLite WASM
 let SQL = null;
