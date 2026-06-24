@@ -4,7 +4,7 @@ import Editor from '@monaco-editor/react';
 import { marked } from 'marked';
 import { runCodeEnv } from '../utils/JavaEngine';
 import confetti from 'canvas-confetti';
-import { FileText, FileCode, RotateCcw, Play, CheckSquare, Terminal } from 'lucide-react';
+import { FileText, FileCode, RotateCcw, Play, CheckSquare, Terminal, Key } from 'lucide-react';
 
 const handleEditorDidMount = (editor, monaco) => {
     if (!monaco) return;
@@ -350,6 +350,32 @@ const PracticeTab = () => {
     ]);
     const [isRunning, setIsRunning] = useState(false);
 
+    // Gemini API Key States
+    const [geminiApiKey, setGeminiApiKey] = useState(
+        localStorage.getItem('raize_gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || ''
+    );
+    const [tempApiKey, setTempApiKey] = useState(geminiApiKey);
+    const [showKeyModal, setShowKeyModal] = useState(false);
+
+    const handleSaveApiKey = () => {
+        const cleanKey = tempApiKey.trim();
+        if (cleanKey) {
+            localStorage.setItem('raize_gemini_api_key', cleanKey);
+            setGeminiApiKey(cleanKey);
+            mentorSpeak("Đã cấu hình Gemini API Key. AI Reviewer đã được kích hoạt!");
+        } else {
+            localStorage.removeItem('raize_gemini_api_key');
+            setGeminiApiKey('');
+            mentorSpeak("Đã gỡ bỏ Gemini API Key. Hệ thống sẽ quay lại dùng bộ kiểm thử tự động.");
+        }
+        setShowKeyModal(false);
+    };
+
+    const openKeyModal = () => {
+        setTempApiKey(geminiApiKey);
+        setShowKeyModal(true);
+    };
+
     // Kéo giãn cột
     const [leftWidth, setLeftWidth] = useState(480);
     const [isDraggingH, setIsDraggingH] = useState(false);
@@ -578,6 +604,145 @@ const PracticeTab = () => {
                 } else {
                     // Chấm bài Java
                     const res = runCodeEnv(editorCode);
+                    
+                    if (geminiApiKey) {
+                        setTerminalOutput([{ type: 'system', text: 'AI Reviewer đang tiến hành kiểm thử và đánh giá bài làm của bạn...' }]);
+                        try {
+                            const requestBody = {
+                                contents: [
+                                    {
+                                        role: 'user',
+                                        parts: [
+                                            {
+                                                text: `Bạn là AI Code Reviewer cho các bài tập Java cơ bản.
+
+Mỗi khi người dùng gửi đề bài và code, hãy làm theo quy trình bắt buộc:
+
+1. Đọc kỹ yêu cầu đề bài:
+   - Xác định input/biến đầu vào.
+   - Xác định điều kiện cần xử lý.
+   - Xác định output mong muốn.
+   - Không tự thay đổi yêu cầu đề bài.
+
+2. Kiểm tra lỗi code:
+   - Lỗi cú pháp Java.
+   - Lỗi logic điều kiện if/else.
+   - Lỗi toán tử: &&, ||, !, ==, =, %, ?:.
+   - Lỗi thứ tự ưu tiên toán tử.
+   - Lỗi sai kiểu dữ liệu.
+   - Lỗi biến chưa khởi tạo hoặc không cần thiết.
+   - Lỗi format output so với yêu cầu.
+
+3. Tự kiểm thử bằng các test case:
+   - Test case đúng theo dữ liệu đề bài.
+   - Test case ở ranh giới điều kiện.
+   - Test case nhỏ hơn ranh giới.
+   - Test case lớn hơn ranh giới.
+   - Test case đặc biệt nếu có.
+
+4. Với mỗi test case, trình bày:
+   - Input.
+   - Kết quả code hiện tại sẽ trả về.
+   - Kết quả đúng theo đề bài.
+   - Kết luận PASS hoặc FAIL.
+
+5. Nếu code sai:
+   - Chỉ rõ dòng/biểu thức sai.
+   - Giải thích ngắn gọn tại sao sai.
+   - Đưa ra code đã sửa hoàn chỉnh.
+   - Không chỉ đưa đáp án; phải giải thích logic.
+
+6. Nếu code đúng:
+   - Xác nhận code đúng.
+   - Gợi ý cách viết ngắn gọn hoặc dễ đọc hơn nếu có.
+   - Vẫn liệt kê ít nhất 3 test case đã kiểm tra.
+
+7. Format câu trả lời luôn theo mẫu:
+
+## Đánh giá
+- PASS / FAIL
+- Lý do ngắn gọn.
+
+## Lỗi phát hiện
+- ...
+
+## Tự kiểm thử
+| Test case | Input | Kết quả hiện tại | Kết quả mong đợi | Kết luận |
+|---|---|---|---|---|
+
+## Code đã sửa / Code đề xuất
+\`\`\`java
+// code
+\`\`\`
+
+---
+ĐỀ BÀI:
+${activeExercise.instructions}
+
+MÃ NGUỒN CỦA HỌC VIÊN:
+\`\`\`java
+${editorCode}
+\`\`\`
+
+KẾT QUẢ CHẠY THỬ MÔ PHỎNG (NẾU CÓ):
+${res.output || 'Không có output'}
+`
+                                            }
+                                        ]
+                                    }
+                                ],
+                                generationConfig: {
+                                    temperature: 0.1
+                                }
+                            };
+
+                            const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(requestBody)
+                            });
+
+                            if (!apiRes.ok) {
+                                const errData = await apiRes.json().catch(() => ({}));
+                                throw new Error(errData.error?.message || `API trả về status ${apiRes.status}`);
+                            }
+
+                            const resData = await apiRes.json();
+                            if (!resData.candidates || resData.candidates.length === 0) {
+                                throw new Error("Không có phản hồi từ AI model.");
+                            }
+                            const aiResponse = resData.candidates[0].content.parts[0].text;
+
+                            // Phân tích đánh giá từ AI
+                            const firstLines = aiResponse.split('\n').slice(0, 10).join('\n');
+                            const isPass = /-\s*PASS/i.test(firstLines) || (/\bPASS\b/i.test(firstLines) && !/\bFAIL\b/i.test(firstLines));
+
+                            setTerminalOutput([
+                                { type: 'markdown', text: aiResponse }
+                            ]);
+
+                            if (isPass) {
+                                if (!completedExercises.has(activeExercise.id)) {
+                                    completeExercise(activeExercise.id, true);
+                                }
+                                mentorSpeak("Thầy chúc mừng em! AI Code Reviewer đánh giá bài làm của em đạt yêu cầu (<b>PASS</b>)!");
+                                triggerConfettiEffect();
+                            } else {
+                                mentorSpeak("Chưa đạt rồi em ơi. AI Code Reviewer đánh giá bài làm chưa đạt (<b>FAIL</b>). Hãy xem kỹ lỗi phát hiện và chỉnh sửa lại nhé!");
+                            }
+                            setIsRunning(false);
+                            return;
+                        } catch (aiErr) {
+                            console.error("Lỗi AI chấm điểm:", aiErr);
+                            setTerminalOutput([
+                                { type: 'error', text: `⚠️ [Lỗi AI]: Chuyển sang chấm điểm dự phòng.\nChi tiết: ${aiErr.message}` }
+                            ]);
+                        }
+                    }
+
+                    // Bộ chấm điểm dự phòng (Fallback) khi không cấu hình API Key hoặc AI lỗi
                     if (!res.success) {
                         setTerminalOutput([{ type: 'error', text: `[Thất bại]: Code bị lỗi biên dịch, không thể chạy test suite.\n${res.output}` }]);
                         mentorSpeak("Không thể chấm điểm vì code của em không biên dịch được. Sửa hết các lỗi đỏ đã nhé!");
@@ -777,7 +942,28 @@ const PracticeTab = () => {
                     <div className="terminal-pane" style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
                         <div className="pane-header terminal-header-bar">
                             <span>Console Terminal</span>
-                            <div className="run-buttons">
+                            <div className="run-buttons" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {!isSql && (
+                                    <button 
+                                        className={`btn-editor-action ${geminiApiKey ? 'btn-ai-active' : 'btn-ai-config'}`}
+                                        title="Cấu hình Gemini API Key cho AI chấm bài"
+                                        onClick={openKeyModal}
+                                        style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: '6px', 
+                                            padding: '5px 10px', 
+                                            borderRadius: '4px',
+                                            cursor: 'pointer',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <Key size={12} />
+                                        <span>{geminiApiKey ? 'AI Active' : 'AI Reviewer'}</span>
+                                    </button>
+                                )}
                                 <button className="btn-run" id="btn-run-code" onClick={handleRunSimulation} disabled={isRunning}>
                                     <Play size={12} />
                                     <span>Chạy Thử</span>
@@ -811,6 +997,15 @@ const PracticeTab = () => {
                                         </table>
                                     );
                                 }
+                                if (line.type === 'markdown') {
+                                    return (
+                                        <div 
+                                            key={idx} 
+                                            className="terminal-markdown-body markdown-body"
+                                            dangerouslySetInnerHTML={{ __html: marked(line.text) }}
+                                        />
+                                    );
+                                }
                                 return (
                                     <span 
                                         key={idx} 
@@ -824,6 +1019,43 @@ const PracticeTab = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Modal cấu hình Gemini API Key */}
+            {showKeyModal && (
+                <div className="ai-modal-overlay" onClick={() => setShowKeyModal(false)}>
+                    <div className="ai-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="ai-modal-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Key size={18} style={{ color: '#6366f1' }} />
+                            <span>Cấu hình Gemini API Key</span>
+                        </h3>
+                        <p className="ai-modal-description">
+                            Nhập Gemini API Key của bạn để sử dụng AI chấm điểm và review bài tập Java nâng cấp. 
+                            API Key được lưu trữ cục bộ trên trình duyệt của bạn.
+                        </p>
+                        <input 
+                            type="password" 
+                            className="ai-modal-input"
+                            placeholder="Nhập Gemini API Key (AIzaSy...)" 
+                            value={tempApiKey}
+                            onChange={(e) => setTempApiKey(e.target.value)}
+                        />
+                        <div className="ai-modal-actions">
+                            <button 
+                                className="ai-modal-btn ai-modal-btn-cancel" 
+                                onClick={() => setShowKeyModal(false)}
+                            >
+                                Hủy
+                            </button>
+                            <button 
+                                className="ai-modal-btn ai-modal-btn-save" 
+                                onClick={handleSaveApiKey}
+                            >
+                                Lưu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 };
