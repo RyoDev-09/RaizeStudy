@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { HelpCircle, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const QuizTab = () => {
-    const { currentLesson, mentorSpeak } = useCourse();
+    const { currentLesson, mentorSpeak, quizStates, saveQuizProgress, loading } = useCourse();
     const { user } = useAuth();
     const quizzes = currentLesson ? currentLesson.quizzes || [] : [];
 
@@ -16,9 +16,17 @@ const QuizTab = () => {
     const [correctCount, setCorrectCount] = useState(0);
     const [showNext, setShowNext] = useState(false);
     const [quizCompleted, setQuizCompleted] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
-    // Reset state và load dữ liệu từ LocalStorage khi đổi bài học / đổi user
+    // Reset trạng thái initialized khi đổi bài học hoặc user
     useEffect(() => {
+        setIsInitialized(false);
+    }, [currentLesson ? currentLesson.id : 0, username]);
+
+    // Reset state và load dữ liệu từ Database/Context hoặc LocalStorage
+    useEffect(() => {
+        if (loading || !currentLesson) return;
+
         let initialState = {
             activeIdx: 0,
             selectedAns: null,
@@ -26,25 +34,38 @@ const QuizTab = () => {
             showNext: false,
             quizCompleted: false
         };
-        try {
-            const savedState = localStorage.getItem(storageKey);
-            if (savedState) {
-                initialState = JSON.parse(savedState);
+
+        const lessonId = currentLesson.id;
+        const dbStateJson = quizStates ? quizStates[lessonId] : null;
+
+        if (dbStateJson) {
+            try {
+                initialState = JSON.parse(dbStateJson);
+            } catch (e) {
+                console.error("Lỗi parse trạng thái trắc nghiệm từ database:", e);
             }
-        } catch (e) {
-            console.error("Lỗi đọc trạng thái trắc nghiệm:", e);
+        } else {
+            try {
+                const savedState = localStorage.getItem(storageKey);
+                if (savedState) {
+                    initialState = JSON.parse(savedState);
+                }
+            } catch (e) {
+                console.error("Lỗi đọc trạng thái trắc nghiệm từ LocalStorage:", e);
+            }
         }
-        
+
         setActiveIdx(initialState.activeIdx ?? 0);
         setSelectedAns(initialState.selectedAns ?? null);
         setCorrectCount(initialState.correctCount ?? 0);
         setShowNext(initialState.showNext ?? false);
         setQuizCompleted(initialState.quizCompleted ?? false);
-    }, [currentLesson ? currentLesson.id : 0, username, storageKey]);
+        setIsInitialized(true);
+    }, [currentLesson ? currentLesson.id : 0, username, loading]);
 
-    // Tự động lưu trạng thái vào LocalStorage khi bất kỳ giá trị nào thay đổi
+    // Tự động lưu trạng thái khi bất kỳ giá trị nào thay đổi (chỉ lưu sau khi đã khởi tạo xong)
     useEffect(() => {
-        if (!currentLesson) return;
+        if (!isInitialized || !currentLesson) return;
         const stateToSave = {
             activeIdx,
             selectedAns,
@@ -52,8 +73,12 @@ const QuizTab = () => {
             showNext,
             quizCompleted
         };
+        // Lưu LocalStorage làm phương án dự phòng/khách
         localStorage.setItem(storageKey, JSON.stringify(stateToSave));
-    }, [activeIdx, selectedAns, correctCount, showNext, quizCompleted, storageKey, currentLesson]);
+        // Gọi hàm saveQuizProgress của context để đồng bộ với DB
+        saveQuizProgress(currentLesson.id, quizCompleted, JSON.stringify(stateToSave));
+    }, [activeIdx, selectedAns, correctCount, showNext, quizCompleted, isInitialized, storageKey, currentLesson]);
+
 
     if (quizzes.length === 0) {
         return (

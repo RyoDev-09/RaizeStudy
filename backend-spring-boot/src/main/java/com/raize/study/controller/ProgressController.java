@@ -22,6 +22,7 @@ public class ProgressController {
     public record CompleteExerciseRequest(Integer exerciseId, Boolean completed) {}
     public record SaveCodeRequest(Integer exerciseId, String code) {}
     public record SaveLastLessonRequest(Integer lessonId, Integer exerciseId) {}
+    public record SaveQuizProgressRequest(Integer lessonId, Boolean completed, String stateJson) {}
 
     @GetMapping
     public ResponseEntity<?> getProgress(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -110,6 +111,25 @@ public class ProgressController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Lỗi ghi nhận trạng thái!"));
+        }
+    }
+
+    @PostMapping("/quiz")
+    public ResponseEntity<?> saveQuizProgress(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody SaveQuizProgressRequest request) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Chưa xác thực!"));
+        }
+        if (request.lessonId() == null || request.completed() == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Thiếu tham số!"));
+        }
+        try {
+            progressService.saveQuizProgress(userDetails.getId(), request.lessonId(), request.completed(), request.stateJson());
+            return ResponseEntity.ok(Map.of("success", true, "message", "Đã đồng bộ tiến độ trắc nghiệm thành công!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi đồng bộ tiến độ trắc nghiệm!"));
         }
     }
 }

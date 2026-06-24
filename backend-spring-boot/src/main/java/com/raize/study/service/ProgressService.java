@@ -24,6 +24,9 @@ public class ProgressService {
     @Autowired
     private UserSettingRepository userSettingRepository;
 
+    @Autowired
+    private UserQuizProgressRepository quizProgressRepository;
+
     public ProgressDto getProgress(Integer userId) {
         // 1. Lấy bài học & bài tập xem cuối cùng từ user_settings
         Optional<UserSetting> settingsOpt = userSettingRepository.findById(userId);
@@ -55,12 +58,28 @@ public class ProgressService {
             }
         }
 
+        // 4. Lấy tiến độ làm bài trắc nghiệm
+        List<UserQuizProgress> quizProgressList = quizProgressRepository.findByUserId(userId);
+        List<Integer> completedQuizzes = quizProgressList.stream()
+                .filter(UserQuizProgress::getCompleted)
+                .map(UserQuizProgress::getLessonId)
+                .collect(Collectors.toList());
+
+        Map<Integer, String> quizStates = new HashMap<>();
+        for (UserQuizProgress progress : quizProgressList) {
+            if (progress.getStateJson() != null) {
+                quizStates.put(progress.getLessonId(), progress.getStateJson());
+            }
+        }
+
         return ProgressDto.builder()
                 .completedLessons(completedLessons)
                 .completedExercises(completedExercises)
                 .userCodes(userCodes)
                 .currentLessonId(currentLessonId)
                 .currentExerciseId(currentExerciseId)
+                .completedQuizzes(completedQuizzes)
+                .quizStates(quizStates)
                 .build();
     }
 
@@ -114,5 +133,21 @@ public class ProgressService {
         settings.setLastLessonId(lessonId);
         settings.setLastExerciseId(exerciseId);
         userSettingRepository.save(settings);
+    }
+
+    @Transactional
+    public void saveQuizProgress(Integer userId, Integer lessonId, Boolean completed, String stateJson) {
+        UserQuizProgressId id = new UserQuizProgressId(userId, lessonId);
+        UserQuizProgress progress = quizProgressRepository.findById(id)
+                .orElse(UserQuizProgress.builder()
+                        .userId(userId)
+                        .lessonId(lessonId)
+                        .build());
+
+        progress.setCompleted(completed);
+        if (stateJson != null) {
+            progress.setStateJson(stateJson);
+        }
+        quizProgressRepository.save(progress);
     }
 }

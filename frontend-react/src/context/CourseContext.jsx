@@ -13,6 +13,9 @@ export const CourseProvider = ({ children }) => {
     const [completedLessons, setCompletedLessons] = useState(new Set());
     const [completedExercises, setCompletedExercises] = useState(new Set());
     const [userCodes, setUserCodes] = useState({});
+    const [completedQuizzes, setCompletedQuizzes] = useState(new Set());
+    const [quizStates, setQuizStates] = useState({});
+
     
     const [activeCourse, setActiveCourse] = useState('java'); // 'java' hoặc 'sql'
     const [currentTab, setCurrentTab] = useState('theory'); // 'theory', 'visual', 'quiz', 'practice'
@@ -59,6 +62,8 @@ export const CourseProvider = ({ children }) => {
                         setCompletedLessons(new Set(data.completedLessons || []));
                         setCompletedExercises(new Set(data.completedExercises || []));
                         setUserCodes(data.userCodes || {});
+                        setCompletedQuizzes(new Set(data.completedQuizzes || []));
+                        setQuizStates(data.quizStates || {});
                         
                         const savedLessonId = parseInt(data.currentLessonId) || 1;
                         setCurrentLessonId(savedLessonId);
@@ -76,10 +81,15 @@ export const CourseProvider = ({ children }) => {
                     const savedCodes = localStorage.getItem('raize_java_codes');
                     const lastL = localStorage.getItem('raize_java_last_lesson');
                     const lastEx = localStorage.getItem('raize_java_last_exercise');
+                    const completedQuizzesStr = localStorage.getItem('raize_java_completed_quizzes');
+                    const quizStatesStr = localStorage.getItem('raize_java_quiz_states');
 
                     setCompletedLessons(new Set(completed ? JSON.parse(completed) : []));
                     setCompletedExercises(new Set(completedEx ? JSON.parse(completedEx) : []));
                     setUserCodes(savedCodes ? JSON.parse(savedCodes) : {});
+                    setCompletedQuizzes(new Set(completedQuizzesStr ? JSON.parse(completedQuizzesStr) : []));
+                    setQuizStates(quizStatesStr ? JSON.parse(quizStatesStr) : {});
+
                     
                     const savedLessonId = lastL ? parseInt(lastL) : 1;
                     setCurrentLessonId(savedLessonId);
@@ -204,6 +214,35 @@ export const CourseProvider = ({ children }) => {
         saveLastLesson(targetLessonId, null);
     };
 
+    // 8. Đồng bộ và lưu tiến độ làm bài trắc nghiệm (Quiz)
+    const saveQuizProgress = async (lessonId, completed, stateJson) => {
+        const nextSet = new Set(completedQuizzes);
+        if (completed) nextSet.add(lessonId);
+        else nextSet.delete(lessonId);
+        setCompletedQuizzes(nextSet);
+
+        const nextStates = { ...quizStates, [lessonId]: stateJson };
+        setQuizStates(nextStates);
+
+        if (isLoggedIn && token) {
+            try {
+                await fetch('/api/progress/quiz', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ lessonId, completed, stateJson })
+                });
+            } catch (err) {
+                console.error("Lỗi đồng bộ saveQuizProgress:", err);
+            }
+        } else {
+            localStorage.setItem('raize_java_completed_quizzes', JSON.stringify(Array.from(nextSet)));
+            localStorage.setItem('raize_java_quiz_states', JSON.stringify(nextStates));
+        }
+    };
+
     // Lấy thông tin bài học hiện tại đang active
     const currentLesson = lessons.find(l => l.id === currentLessonId) || null;
 
@@ -220,14 +259,18 @@ export const CourseProvider = ({ children }) => {
             loading,
             mentorMessage,
             currentLesson,
+            completedQuizzes,
+            quizStates,
             setCurrentTab,
             completeLesson,
             completeExercise,
             saveCode,
             saveLastLesson,
             selectCourse,
-            mentorSpeak
+            mentorSpeak,
+            saveQuizProgress
         }}>
+
             {children}
         </CourseContext.Provider>
     );

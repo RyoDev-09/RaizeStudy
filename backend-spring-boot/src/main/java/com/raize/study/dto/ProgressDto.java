@@ -17,4 +17,6 @@ public class ProgressDto {
     private Map<Integer, String> userCodes;
     private Integer currentLessonId;
     private Integer currentExerciseId;
+    private List<Integer> completedQuizzes;
+    private Map<Integer, String> quizStates;
 }
