@@ -34,6 +34,7 @@ services:
       DB_USER: root
       DB_PASS: "123456"
       JWT_SECRET: raize_study_jwt_secret_key_2026_raize_study_jwt_secret_key_2026
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     depends_on:
       mysql-db:
         condition: service_healthy

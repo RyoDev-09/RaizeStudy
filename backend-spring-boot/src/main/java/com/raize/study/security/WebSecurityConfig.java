@@ -43,8 +43,9 @@ public class WebSecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/lessons").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/lessons", "/api/ai/**").permitAll()
                 .requestMatchers("/api/auth/me", "/api/progress/**").authenticated()
+
                 .requestMatchers("/", "/index.html", "/static/**", "/assets/**", "/favicon.ico").permitAll()
                 .anyRequest().permitAll()
             );
