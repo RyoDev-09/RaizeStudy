@@ -40,7 +40,7 @@ export function runCodeEnv(javaCode) {
     // Chuẩn hóa và làm sạch code Java để biên dịch sang JS thực thi
     let js = javaCode;
     
-    // Xóa imports
+    // Xóa imports (hỗ trợ cả import java.util.Arrays; và import java.util.*;)
     js = js.replace(/import\s+[\w\.]+(\.\*)?;/g, '');
     
     // Xử lý các phép nối chuỗi trong printf
@@ -197,12 +197,22 @@ export function runCodeEnv(javaCode) {
         let tText = bodyText;
         
         // Dịch vòng lặp enhanced for: for (int x : list) -> for (let x of list)
-        tText = tText.replace(/\bfor\s*\(\s*(?:final\s+)?([\w_$<>]+)\s+([\w_$]+)\s*:\s*([^)]+)\)/g, 'for (let $2 of $3)');
-        
-        // Mảng: int[] a = {1, 2} -> let a = [1, 2]
-        tText = tText.replace(/\b[\w_$<>]+\[\]\s+([\w_$]+)\s*=\s*\{([\s\S]*?)\}/g, 'let $1 = [ $2 ]');
-        // Mảng: int[] a = new int[5] -> let a = new Array($2)
-        tText = tText.replace(/\b[\w_$<>]+\[\]\s+([\w_$]+)\s*=\s*new\s+\w+\[\s*([^\]]*)\s*\]/g, 'let $1 = new Array($2)');
+        tText = tText.replace(/\bfor\s*\(\s*(?:final\s+)?([\w_$<>]+)(?:\[\])*\s+([\w_$]+)\s*:\s*([^)]+)\)/g, 'for (let $2 of $3)');
+
+        // Mảng 2 chiều: int[][] a = {{1,2},{3,4}} -> let a = [[1,2],[3,4]]
+        tText = tText.replace(/\b[\w_$<>]+\[\]\[\]\s+([\w_$]+)\s*=\s*\{((?:[^{}]|\{[^{}]*\})*)\}/g, (m, varName, inner) => {
+            // Chuyển {1,2,3} -> [1,2,3] trong từng hàng
+            const converted = inner.replace(/\{([^{}]*)\}/g, '[$1]');
+            return `let ${varName} = [${converted}]`;
+        });
+        // Mảng 2 chiều: int[][] a = new int[r][c] -> let a = Array.from({length:r}, ()=>new Array(c))
+        tText = tText.replace(/\b[\w_$<>]+\[\]\[\]\s+([\w_$]+)\s*=\s*new\s+\w+\[([^\]]*)\]\[([^\]]*)\]/g,
+            'let $1 = Array.from({length: $2}, () => new Array($3).fill(0))');
+
+        // Mảng 1 chiều: int[] a = {1, 2} -> let a = [1, 2]
+        tText = tText.replace(/\b[\w_$<>]+\[\]\s+([\w_$]+)\s*=\s*\{([^{}]*)\}/g, 'let $1 = [ $2 ]');
+        // Mảng 1 chiều: int[] a = new int[5] -> let a = new Array(5).fill(0)
+        tText = tText.replace(/\b[\w_$<>]+\[\]\s+([\w_$]+)\s*=\s*new\s+\w+\[\s*([^\]]*)\s*\]/g, 'let $1 = new Array($2).fill(0)');
 
         // Type var = val;
         tText = tText.replace(/\b([\w_$<>]+)\s+([\w_$]+)\s*=/g, (m, type, varName) => {
@@ -353,11 +363,22 @@ export function runCodeEnv(javaCode) {
     }
     
     // Môi trường chạy ảo
+    const deepToString = (arr) => {
+        if (!Array.isArray(arr)) return String(arr);
+        return '[' + arr.map(item => Array.isArray(item) ? deepToString(item) : item).join(', ') + ']';
+    };
     const runEnv = {
         print,
         println,
         printf,
         Math,
+        Arrays: {
+            deepToString: (arr) => deepToString(arr),
+            toString: (arr) => '[' + (Array.isArray(arr) ? arr.join(', ') : arr) + ']',
+            sort: (arr) => { arr.sort((a, b) => a - b); return arr; },
+            fill: (arr, val) => { arr.fill(val); return arr; },
+            copyOf: (arr, len) => arr.slice(0, len),
+        },
         StringBuilder: function() {
             this.str = "";
             this.append = function(x) { this.str += String(x); return this; };
@@ -380,12 +401,12 @@ export function runCodeEnv(javaCode) {
     
     try {
         const runner = new Function(
-            'print', 'println', 'printf', 'StringBuilder', 
+            'print', 'println', 'printf', 'StringBuilder', 'Arrays',
             'byte', 'short', 'int', 'long', 'float', 'double', 'char', 
             codeToRun
         );
         runner(
-            runEnv.print, runEnv.println, runEnv.printf, runEnv.StringBuilder,
+            runEnv.print, runEnv.println, runEnv.printf, runEnv.StringBuilder, runEnv.Arrays,
             runEnv.byte, runEnv.short, runEnv.int, runEnv.long, runEnv.float, runEnv.double, runEnv.char
         );
         return { success: true, output: outputLines.join('') };
