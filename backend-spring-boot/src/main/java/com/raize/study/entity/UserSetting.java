@@ -23,6 +23,8 @@ public class UserSetting {
     @Column(name = "last_exercise_id")
     private Integer lastExerciseId;
 
-    @Column(name = "updated_at", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @org.hibernate.annotations.UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }
+

@@ -25,6 +25,8 @@ public class UserLessonProgress {
     @Column(nullable = false)
     private Boolean completed;
 
-    @Column(name = "updated_at", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @org.hibernate.annotations.UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }
+

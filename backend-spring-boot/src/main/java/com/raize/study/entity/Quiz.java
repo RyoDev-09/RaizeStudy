@@ -33,6 +33,8 @@ public class Quiz {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String explanation;
 
-    @Column(name = "created_at", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @org.hibernate.annotations.CreationTimestamp
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 }
+

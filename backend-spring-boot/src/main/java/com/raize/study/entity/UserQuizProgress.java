@@ -28,6 +28,8 @@ public class UserQuizProgress {
     @Column(name = "state_json", columnDefinition = "TEXT")
     private String stateJson;
 
-    @Column(name = "updated_at", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @org.hibernate.annotations.UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }
+
