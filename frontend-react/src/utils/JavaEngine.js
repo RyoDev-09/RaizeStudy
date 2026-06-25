@@ -90,6 +90,19 @@ export function runCodeEnv(javaCode) {
                 return this.trim().length === 0; 
             };
         }
+        if (!String.prototype.originalSplit) {
+            String.prototype.originalSplit = String.prototype.split;
+            String.prototype.split = function(separator, limit) {
+                if (typeof separator === 'string') {
+                    try {
+                        return this.originalSplit(new RegExp(separator), limit);
+                    } catch (e) {
+                        return this.originalSplit(separator, limit);
+                    }
+                }
+                return this.originalSplit(separator, limit);
+            };
+        }
     `;
 
     // 2. Tìm tất cả tên Class
@@ -215,15 +228,15 @@ export function runCodeEnv(javaCode) {
         tText = tText.replace(/\b[\w_$<>]+\[\]\s+([\w_$]+)\s*=\s*new\s+\w+\[\s*([^\]]*)\s*\]/g, 'let $1 = new Array($2).fill(0)');
 
         // Type var = val;
-        tText = tText.replace(/\b([\w_$<>]+)\s+([\w_$]+)\s*=/g, (m, type, varName) => {
-            const cleanType = type.split('<')[0];
+        tText = tText.replace(/\b([\w_$<>[\]]+)\s+([\w_$]+)\s*=/g, (m, type, varName) => {
+            const cleanType = type.split('<')[0].replace(/[\[\]]/g, '');
             if (keywords.has(cleanType)) return m;
             return `let ${varName} =`;
         });
 
         // Type var;
-        tText = tText.replace(/\b([\w_$<>]+)\s+([\w_$]+)\s*;/g, (m, type, varName) => {
-            const cleanType = type.split('<')[0];
+        tText = tText.replace(/\b([\w_$<>[\]]+)\s+([\w_$]+)\s*;/g, (m, type, varName) => {
+            const cleanType = type.split('<')[0].replace(/[\[\]]/g, '');
             if (keywords.has(cleanType) || varName === 'out') return m;
             return `let ${varName};`;
         });
