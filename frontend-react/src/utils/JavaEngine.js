@@ -103,6 +103,11 @@ export function runCodeEnv(javaCode) {
                 return this.originalSplit(separator, limit);
             };
         }
+        if (!String.prototype.toCharArray) {
+            String.prototype.toCharArray = function() {
+                return this.split('');
+            };
+        }
     `;
 
     // 2. Tìm tất cả tên Class

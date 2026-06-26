@@ -211,9 +211,9 @@
     "lessonId": 5,
     "title": "Đếm Số Nguyên Âm",
     "fileName": "VowelCounter.java",
-    "instructions": "### Yêu cầu:\nViết chương trình đếm số lượng nguyên âm (a, e, i, o, u - không phân biệt hoa thường) trong chuỗi `String str = \"Hello Java Learner\";`.\nIn ra kết quả dạng: `Số nguyên âm: [kết quả]`. (Đáp án đúng: `6`)",
+    "instructions": "### Yêu cầu:\nViết chương trình đếm số lượng nguyên âm (a, e, i, o, u - không phân biệt hoa thường) trong chuỗi `String str = \"Hello Java Learner\";`.\nIn ra kết quả dạng: `Số nguyên âm: [kết quả]`. (Đáp án đúng: `7`)",
     "starterCode": "public class VowelCounter {\n    public static void main(String[] args) {\n        String str = \"Hello Java Learner\".toLowerCase();\n        int count = 0;\n        // TODO: Đếm số lượng nguyên âm (a, e, i, o, u) trong chuỗi str và lưu vào biến count\n        System.out.println(\"Số nguyên âm: \" + count);\n    }\n}",
-    "validateStr": "function validate(code, output) {\n    const required = [];\n    const expected = [\"Số nguyên âm: 6\"];\n    for (const kw of required) {\n        if (!code.includes(kw)) {\n            return { pass: false, msg: \"Em cần sử dụng từ khóa quan trọng: '\" + kw + \"'!\" };\n        }\n    }\n    for (const out of expected) {\n        if (!output.includes(out)) {\n            return { pass: false, msg: \"Đầu ra in ra chưa chính xác. Yêu cầu hiển thị: '\" + out + \"'\" };\n        }\n    }\n    return { pass: true, msg: \"Tuyệt vời! Em đã hoàn thành xuất sắc bài tập này!\" };\n}"
+    "validateStr": "function validate(code, output) {\n    const required = [];\n    const expected = [\"Số nguyên âm: 7\"];\n    for (const kw of required) {\n        if (!code.includes(kw)) {\n            return { pass: false, msg: \"Em cần sử dụng từ khóa quan trọng: '\" + kw + \"'!\" };\n        }\n    }\n    for (const out of expected) {\n        if (!output.includes(out)) {\n            return { pass: false, msg: \"Đầu ra in ra chưa chính xác. Yêu cầu hiển thị: '\" + out + \"'\" };\n        }\n    }\n    return { pass: true, msg: \"Tuyệt vời! Em đã hoàn thành xuất sắc bài tập này!\" };\n}"
   },
   {
     "id": 25,
